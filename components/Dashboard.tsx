@@ -35,6 +35,41 @@ export function Dashboard() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     
+    const RPC_ENDPOINTS = [
+      "https://mainnet.base.org",
+      "https://base.llamarpc.com",
+      "https://base-mainnet.public.blastapi.io"
+    ];
+
+    const rpcCall = async (data: string) => {
+      for (const endpoint of RPC_ENDPOINTS) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        try {
+          const res = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              jsonrpc: "2.0",
+              method: "eth_call",
+              params: [{ to: CONTRACT_ADDRESS, data }, "latest"],
+              id: 1
+            }),
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          if (!res.ok) continue;
+          const json = await res.json();
+          if (json.result) return json.result;
+        } catch (e) {
+          clearTimeout(timeoutId);
+          console.warn(`RPC call failed for ${endpoint}`, e);
+          continue;
+        }
+      }
+      throw new Error("All RPC endpoints failed");
+    };
+
     if (IS_PRE_LAUNCH) {
       setPriceUsd(0);
       setVolume24h(0);
@@ -69,23 +104,8 @@ export function Dashboard() {
       }
     }
 
-    // 2. Fetch User Balance & Total Supply via Public RPC (Bulletproof)
+    // 2. Fetch User Balance & Total Supply via Public RPC
     try {
-      const rpcCall = async (data: string) => {
-        const res = await fetch("https://mainnet.base.org", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "eth_call",
-            params: [{ to: CONTRACT_ADDRESS, data }, "latest"],
-            id: 1
-          })
-        });
-        const json = await res.json();
-        return json.result;
-      };
-
       // Total Supply (0x18160ddd)
       const supplyHex = await rpcCall("0x18160ddd");
       if (supplyHex && supplyHex !== "0x") {
@@ -99,30 +119,23 @@ export function Dashboard() {
         setUserBalance(Number(BigInt(balanceHex)) / 1e18);
       }
     } catch (error) {
-      console.error("RPC fetch failed", error);
+      console.error("Balance/Supply fetch failed", error);
     }
 
-    // 3. Fetch Contract NAV (quoteSellGBLIN) via Public RPC
+    // 3. Fetch Contract NAV (quoteSellGBLIN)
     try {
-      const rpcCall = async (data: string) => {
-        const res = await fetch("https://mainnet.base.org", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "eth_call",
-            params: [{ to: CONTRACT_ADDRESS, data }, "latest"],
-            id: 1
-          })
-        });
-        const json = await res.json();
-        return json.result;
-      };
-
-      // Get ETH price first
-      const wethRes = await fetch("https://api.geckoterminal.com/api/v2/networks/base/tokens/0x4200000000000000000000000000000000000006");
-      const wethData = await wethRes.json();
-      const ethPrice = Number(wethData?.data?.attributes?.price_usd || 0);
+      // Get ETH price first (with fallback)
+      let ethPrice = 0;
+      try {
+        const wethRes = await fetch("https://api.geckoterminal.com/api/v2/networks/base/tokens/0x4200000000000000000000000000000000000006");
+        const wethData = await wethRes.json();
+        ethPrice = Number(wethData?.data?.attributes?.price_usd || 0);
+      } catch (e) {
+        console.warn("GeckoTerminal WETH fetch failed, trying fallback...", e);
+        const ethRes = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT");
+        const ethData = await ethRes.json();
+        ethPrice = Number(ethData.price || 0);
+      }
 
       // quoteSellGBLIN(1e18) signature is 0x2a0a45fd + 1e18 in hex
       const navData = "0x2a0a45fd0000000000000000000000000000000000000000000000000de0b6b3a7640000";
@@ -136,13 +149,13 @@ export function Dashboard() {
       console.error("Failed to fetch Contract NAV", error);
     }
 
-    // 4. Fetch Transactions via Blockscout API
+    // 4. Fetch Transactions via Proxy (Basescan)
     try {
-      const res = await fetch(`https://base.blockscout.com/api?module=account&action=tokentx&contractaddress=${CONTRACT_ADDRESS}&page=1&offset=15&sort=desc`);
+      const res = await fetch(`/api/basescan?module=account&action=tokentx&contractaddress=${CONTRACT_ADDRESS}&page=1&offset=10&sort=desc`);
       const json = await res.json();
       
-      if ((json.status === "1" || json.status === "0") && Array.isArray(json.result)) {
-        const formattedTxs = json.result.map((tx: any) => ({
+      if (json.status === "1" && Array.isArray(json.result)) {
+        const formattedTxs = json.result.slice(0, 10).map((tx: any) => ({
           hash: tx.hash,
           timeStamp: tx.timeStamp,
           from: tx.from,
@@ -152,10 +165,22 @@ export function Dashboard() {
         }));
         setTransactions(formattedTxs);
       } else {
-        console.error("Blockscout API returned error:", json.message);
+        // Fallback to Blockscout if Basescan proxy fails or returns no data
+        const bsRes = await fetch(`https://base.blockscout.com/api?module=account&action=tokentx&contractaddress=${CONTRACT_ADDRESS}&page=1&offset=10&sort=desc`);
+        const bsJson = await bsRes.json();
+        if (Array.isArray(bsJson.result)) {
+          setTransactions(bsJson.result.slice(0, 10).map((tx: any) => ({
+            hash: tx.hash,
+            timeStamp: tx.timeStamp,
+            from: tx.from,
+            to: tx.to,
+            value: tx.value,
+            logIndex: tx.logIndex
+          })));
+        }
       }
     } catch (error) {
-      console.error("Failed to fetch transactions via Blockscout", error);
+      console.error("Failed to fetch transactions", error);
     }
 
     setLastUpdated(new Date());
