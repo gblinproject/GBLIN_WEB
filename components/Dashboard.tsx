@@ -39,21 +39,22 @@ export function Dashboard() {
       setPriceUsd(0);
       setVolume24h(0);
     } else {
-      // 1. Fetch Market Data (GeckoTerminal with DexScreener fallback)
+      // 1. Fetch Market Data (GeckoTerminal Pools endpoint for accurate volume)
       try {
-        const marketRes = await fetch(`https://api.geckoterminal.com/api/v2/networks/base/tokens/${CONTRACT_ADDRESS}`);
+        const marketRes = await fetch(`https://api.geckoterminal.com/api/v2/networks/base/tokens/${CONTRACT_ADDRESS}/pools`);
         if (!marketRes.ok) throw new Error("GeckoTerminal response not ok");
         const marketData = await marketRes.json();
         
-        if (marketData.data && marketData.data.attributes) {
-          const attrs = marketData.data.attributes;
-          setPriceUsd(Number(attrs.price_usd || 0));
-          setVolume24h(Number(attrs.volume_usd?.h24 || 0));
+        if (marketData.data && marketData.data.length > 0) {
+          // Find the pool with the highest volume or just the first one (usually Aerodrome)
+          const pool = marketData.data[0].attributes;
+          setPriceUsd(Number(pool.base_token_price_usd || 0));
+          setVolume24h(Number(pool.volume_usd?.h24 || 0));
         } else {
-          throw new Error("Invalid Gecko data");
+          throw new Error("No pools found for token");
         }
       } catch (geckoError) {
-        console.warn("GeckoTerminal failed, trying DexScreener...", geckoError);
+        console.warn("GeckoTerminal Pools failed, trying DexScreener...", geckoError);
         try {
           const dexRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${CONTRACT_ADDRESS}`);
           const dexData = await dexRes.json();
