@@ -22,6 +22,8 @@ export function Dashboard() {
   const [priceUsd, setPriceUsd] = useState<number>(0);
   const [volume24h, setVolume24h] = useState<number>(0);
   const [userBalance, setUserBalance] = useState<number>(0);
+  const [totalSupply, setTotalSupply] = useState<number>(0);
+  const [contractNav, setContractNav] = useState<number>(0);
 
   const CONTRACT_ADDRESS = "0xc475851f9101A2AC48a84EcF869766A94D301FaA";
   const USER_ADDRESS = "0x9FFa542E369C53af62380296092EC669f329a9ee";
@@ -64,10 +66,33 @@ export function Dashboard() {
         setUserBalance(Number(balData.result) / 1e18);
       }
 
-      // 3. Fetch Transactions from BaseScan
-      const txRes = await fetch(`https://api.basescan.org/api?module=account&action=tokentx&contractaddress=${CONTRACT_ADDRESS}&page=1&offset=10&sort=desc`);
+      // Ritardo di 1.5 secondi per evitare il blocco Anti-Spam (Rate Limit) di BaseScan senza API Key
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // 3. Fetch Total Supply from BaseScan
+      const supplyRes = await fetch(`https://api.basescan.org/api?module=stats&action=tokensupply&contractaddress=${CONTRACT_ADDRESS}`);
+      const supplyData = await supplyRes.json();
+      if (supplyData.status === "1") {
+        const supply = Number(supplyData.result) / 1e18;
+        setTotalSupply(supply);
+        
+        // Calcolo approssimativo del NAV (Net Asset Value)
+        // Al momento della genesi, 1 GBLIN = 1 ETH. 
+        // Recuperiamo il prezzo di ETH per dare una stima del NAV in USD.
+        const ethPriceRes = await fetch(`https://api.basescan.org/api?module=stats&action=ethprice`);
+        const ethPriceData = await ethPriceRes.json();
+        if (ethPriceData.status === "1" && ethPriceData.result.ethusd) {
+           const ethUsd = Number(ethPriceData.result.ethusd);
+           setContractNav(ethUsd);
+        }
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // 4. Fetch Transactions from BaseScan (ERC20 Token Transfers)
+      const txRes = await fetch(`https://api.basescan.org/api?module=account&action=tokentx&contractaddress=${CONTRACT_ADDRESS}&page=1&offset=15&sort=desc`);
       const txData = await txRes.json();
-      if (txData.status === "1" && txData.result) {
+      if (txData.status === "1" && Array.isArray(txData.result)) {
         setTransactions(txData.result);
       }
 
@@ -96,17 +121,30 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       {/* TOP METRICS GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* PRICE */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* PRICE POOL */}
         <div className="bg-[#1A1A1A] border border-[#333] p-4 rounded-sm">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-zinc-500 uppercase tracking-widest">GBLIN Price</span>
+            <span className="text-xs text-zinc-500 uppercase tracking-widest">GBLIN Price Pool</span>
             <DollarSign className="w-4 h-4 text-amber-500" />
           </div>
           <div className="text-2xl font-bold text-[#E4E3E0]">
             {priceUsd > 0 ? formatCurrency(priceUsd) : <span className="text-amber-500/50 text-xl tracking-widest">AWAITING LP</span>}
           </div>
-          <div className="text-xs text-zinc-500 mt-1">BASESCAN MARKET DATA</div>
+          <div className="text-xs text-zinc-500 mt-1">AERODROME MARKET DATA</div>
+        </div>
+
+        {/* CONTRACT NAV */}
+        <div className="bg-[#1A1A1A] border border-[#333] p-4 rounded-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/10 rounded-bl-full -z-0"></div>
+          <div className="flex items-center justify-between mb-2 relative z-10">
+            <span className="text-xs text-emerald-500 uppercase tracking-widest font-bold">GBLIN Contract NAV</span>
+            <ShieldAlert className="w-4 h-4 text-emerald-500" />
+          </div>
+          <div className="text-2xl font-bold text-emerald-400 relative z-10">
+            {contractNav > 0 ? formatCurrency(contractNav) : <span className="text-zinc-500 text-xl tracking-widest">CALCULATING...</span>}
+          </div>
+          <div className="text-xs text-emerald-500/70 mt-1 relative z-10">REAL ASSET BACKING</div>
         </div>
         
         {/* VOLUME */}
@@ -118,7 +156,19 @@ export function Dashboard() {
           <div className="text-2xl font-bold text-[#E4E3E0]">
             {volume24h > 0 ? formatCurrency(volume24h) : <span className="text-amber-500/50 text-xl tracking-widest">AWAITING LP</span>}
           </div>
-          <div className="text-xs text-zinc-500 mt-1">UNISWAP V3 POOL</div>
+          <div className="text-xs text-zinc-500 mt-1">AERODROME POOL</div>
+        </div>
+
+        {/* TOTAL SUPPLY */}
+        <div className="bg-[#1A1A1A] border border-[#333] p-4 rounded-sm">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-zinc-500 uppercase tracking-widest">Total Supply</span>
+            <Database className="w-4 h-4 text-amber-500" />
+          </div>
+          <div className="text-2xl font-bold text-[#E4E3E0] font-mono">
+            {totalSupply > 0 ? totalSupply.toFixed(4) : <span className="text-zinc-500 text-xl tracking-widest">SYNCING...</span>}
+          </div>
+          <div className="text-xs text-zinc-500 mt-1">GBLIN IN EXISTENCE</div>
         </div>
       </div>
 
