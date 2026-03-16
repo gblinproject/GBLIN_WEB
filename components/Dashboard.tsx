@@ -11,6 +11,7 @@ interface Transaction {
   from: string;
   to: string;
   value: string;
+  logIndex?: string;
 }
 
 export function Dashboard() {
@@ -28,7 +29,7 @@ export function Dashboard() {
   const CONTRACT_ADDRESS = "0xc475851f9101A2AC48a84EcF869766A94D301FaA";
   const USER_ADDRESS = "0x9FFa542E369C53af62380296092EC669f329a9ee";
   
-  // FLAG DI PRE-LANCIO: Imposta su 'false' DOPO aver creato la pool su Uniswap
+  // FLAG DI PRE-LANCIO: Imposta su 'false' DOPO aver creato la pool su Aerodrome
   const IS_PRE_LAUNCH = false; 
 
   const fetchData = useCallback(async () => {
@@ -145,7 +146,8 @@ export function Dashboard() {
           timeStamp: tx.timeStamp,
           from: tx.from,
           to: tx.to,
-          value: tx.value
+          value: tx.value,
+          logIndex: tx.logIndex
         }));
         setTransactions(formattedTxs);
       } else {
@@ -277,8 +279,8 @@ export function Dashboard() {
                   </td>
                 </tr>
               ) : (
-                transactions.map((tx) => (
-                  <tr key={tx.hash} className="hover:bg-[#222] transition-colors">
+                transactions.map((tx, idx) => (
+                  <tr key={`${tx.hash}-${tx.logIndex || idx}`} className="hover:bg-[#222] transition-colors">
                     <td className="px-4 py-3 text-zinc-400 whitespace-nowrap">
                       {formatDistanceToNow(new Date(Number(tx.timeStamp) * 1000), { addSuffix: true })}
                     </td>

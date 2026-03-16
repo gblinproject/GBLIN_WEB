@@ -101,7 +101,7 @@ export default function GBLINManifesto() {
                 {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} className="opacity-40 group-hover:opacity-100" />}
               </button>
               <a 
-                href="https://app.uniswap.org"
+                href={`https://aerodrome.finance/swap?from=eth&to=${CONTRACT_ADDRESS}`}
                 target="_blank"
                 className="flex items-center gap-2 px-8 py-4 bg-amber-500 text-black font-bold rounded-2xl hover:scale-105 transition-transform"
               >
@@ -308,7 +308,7 @@ export default function GBLINManifesto() {
           <div className="flex justify-center gap-6 text-sm opacity-50">
             <a href={`https://basescan.org/token/${CONTRACT_ADDRESS}`} className="hover:text-amber-500 transition-colors">Basescan</a>
             <a href="https://dexscreener.com" className="hover:text-amber-500 transition-colors">DexScreener</a>
-            <a href="https://uniswap.org" className="hover:text-amber-500 transition-colors">Uniswap</a>
+            <a href="https://aerodrome.finance" className="hover:text-amber-500 transition-colors">Aerodrome</a>
           </div>
           <p className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-30">
             © 2026 GBLIN Protocol. Built for the Base Ecosystem.

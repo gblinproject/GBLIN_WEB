@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
-  const module = searchParams.get("module");
+  const mod = searchParams.get("module");
   const action = searchParams.get("action");
   const contractaddress = searchParams.get("contractaddress");
   const address = searchParams.get("address");
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   const sort = searchParams.get("sort");
 
   // Costruisci l'URL per BaseScan
-  let url = `https://api.basescan.org/api?module=${module}&action=${action}`;
+  let url = `https://api.basescan.org/api?module=${mod}&action=${action}`;
   
   if (contractaddress) url += `&contractaddress=${contractaddress}`;
   if (address) url += `&address=${address}`;
