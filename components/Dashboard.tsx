@@ -27,7 +27,7 @@ export function Dashboard() {
   const USER_ADDRESS = "0x9FFa542E369C53af62380296092EC669f329a9ee";
   
   // FLAG DI PRE-LANCIO: Imposta su 'false' DOPO aver creato la pool su Uniswap
-  const IS_PRE_LAUNCH = true; 
+  const IS_PRE_LAUNCH = false; 
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -77,7 +77,7 @@ export function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [IS_PRE_LAUNCH]);
 
   useEffect(() => {
     fetchData();
