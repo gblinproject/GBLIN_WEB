@@ -128,7 +128,7 @@ export function Dashboard() {
           <h3 className="text-sm font-bold text-[#E4E3E0] uppercase flex items-center gap-3">
             <div className="relative w-6 h-6 rounded-full overflow-hidden">
               <Image 
-                src="https://raw.githubusercontent.com/gblinproject/GBLIN/main/LOGO_GBLIN.png?v=3"
+                src="https://raw.githubusercontent.com/gblinproject/GBLIN/main/LOGO_GBLIN.svg"
                 alt="GBLIN"
                 fill
                 unoptimized

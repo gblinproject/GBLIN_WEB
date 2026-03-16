@@ -39,7 +39,7 @@ export default function GBLINManifesto() {
           <div className="flex items-center gap-4">
             <div className="relative w-14 h-14 aspect-square rounded-full overflow-hidden">
               <Image 
-                src="https://raw.githubusercontent.com/gblinproject/GBLIN/main/LOGO_GBLIN.png?v=3"
+                src="https://raw.githubusercontent.com/gblinproject/GBLIN/main/LOGO_GBLIN.svg"
                 alt="GBLIN Logo"
                 fill
                 unoptimized
@@ -221,7 +221,7 @@ export default function GBLINManifesto() {
                 <div className="absolute inset-0 bg-amber-500/5 blur-[120px] rounded-full opacity-30 animate-pulse" />
                 <div className="relative w-full h-full rounded-full overflow-hidden">
                   <Image 
-                    src="https://raw.githubusercontent.com/gblinproject/GBLIN/main/LOGO_GBLIN.png?v=3"
+                    src="https://raw.githubusercontent.com/gblinproject/GBLIN/main/LOGO_GBLIN.svg"
                     alt="GBLIN Core"
                     fill
                     quality={100}
@@ -277,7 +277,7 @@ export default function GBLINManifesto() {
           <div className="flex flex-col items-center gap-6">
             <div className="relative w-32 h-32 aspect-square rounded-full overflow-hidden">
               <Image 
-                src="https://raw.githubusercontent.com/gblinproject/GBLIN/main/LOGO_GBLIN.png?v=3"
+                src="https://raw.githubusercontent.com/gblinproject/GBLIN/main/LOGO_GBLIN.svg"
                 alt="GBLIN Logo"
                 fill
                 unoptimized

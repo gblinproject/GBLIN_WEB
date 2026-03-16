@@ -18,7 +18,7 @@ export default function BannerPage() {
           <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
             <div className="relative w-40 h-40 mb-8">
               <Image
-                src="https://raw.githubusercontent.com/gblinproject/GBLIN/main/LOGO_GBLIN.png?v=3"
+                src="https://raw.githubusercontent.com/gblinproject/GBLIN/main/LOGO_GBLIN.svg"
                 alt="GBLIN Logo"
                 fill
                 unoptimized
