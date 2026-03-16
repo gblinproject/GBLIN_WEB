@@ -33,14 +33,15 @@ export function Dashboard() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    try {
-      if (IS_PRE_LAUNCH) {
-        // Forza a 0 durante il pre-lancio per mostrare "AWAITING LP" ed evitare glitch delle API
-        setPriceUsd(0);
-        setVolume24h(0);
-      } else {
-        // 1. Fetch Market Data from GeckoTerminal (Base Network)
+    
+    if (IS_PRE_LAUNCH) {
+      setPriceUsd(0);
+      setVolume24h(0);
+    } else {
+      // 1. Fetch Market Data (GeckoTerminal with DexScreener fallback)
+      try {
         const marketRes = await fetch(`https://api.geckoterminal.com/api/v2/networks/base/tokens/${CONTRACT_ADDRESS}`);
+        if (!marketRes.ok) throw new Error("GeckoTerminal response not ok");
         const marketData = await marketRes.json();
         
         if (marketData.data && marketData.data.attributes) {
@@ -48,7 +49,11 @@ export function Dashboard() {
           setPriceUsd(Number(attrs.price_usd || 0));
           setVolume24h(Number(attrs.volume_usd?.h24 || 0));
         } else {
-          // Fallback to DexScreener if GeckoTerminal fails
+          throw new Error("Invalid Gecko data");
+        }
+      } catch (geckoError) {
+        console.warn("GeckoTerminal failed, trying DexScreener...", geckoError);
+        try {
           const dexRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${CONTRACT_ADDRESS}`);
           const dexData = await dexRes.json();
           if (dexData.pairs && dexData.pairs.length > 0) {
@@ -56,52 +61,102 @@ export function Dashboard() {
             setPriceUsd(Number(pair.priceUsd || 0));
             setVolume24h(Number(pair.volume?.h24 || 0));
           }
+        } catch (dexError) {
+          console.error("Market data fetch failed completely", dexError);
         }
       }
-
-      // 2. Fetch User Balance from BaseScan
-      const balRes = await fetch(`https://api.basescan.org/api?module=account&action=tokenbalance&contractaddress=${CONTRACT_ADDRESS}&address=${USER_ADDRESS}&tag=latest`);
-      const balData = await balRes.json();
-      if (balData.status === "1") {
-        setUserBalance(Number(balData.result) / 1e18);
-      }
-
-      // Ritardo di 1.5 secondi per evitare il blocco Anti-Spam (Rate Limit) di BaseScan senza API Key
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // 3. Fetch Total Supply from BaseScan
-      const supplyRes = await fetch(`https://api.basescan.org/api?module=stats&action=tokensupply&contractaddress=${CONTRACT_ADDRESS}`);
-      const supplyData = await supplyRes.json();
-      if (supplyData.status === "1") {
-        const supply = Number(supplyData.result) / 1e18;
-        setTotalSupply(supply);
-        
-        // Calcolo approssimativo del NAV (Net Asset Value)
-        // Al momento della genesi, 1 GBLIN = 1 ETH. 
-        // Recuperiamo il prezzo di ETH per dare una stima del NAV in USD.
-        const ethPriceRes = await fetch(`https://api.basescan.org/api?module=stats&action=ethprice`);
-        const ethPriceData = await ethPriceRes.json();
-        if (ethPriceData.status === "1" && ethPriceData.result.ethusd) {
-           const ethUsd = Number(ethPriceData.result.ethusd);
-           setContractNav(ethUsd);
-        }
-      }
-
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // 4. Fetch Transactions from BaseScan (ERC20 Token Transfers)
-      const txRes = await fetch(`https://api.basescan.org/api?module=account&action=tokentx&contractaddress=${CONTRACT_ADDRESS}&page=1&offset=15&sort=desc`);
-      const txData = await txRes.json();
-      if (txData.status === "1" && Array.isArray(txData.result)) {
-        setTransactions(txData.result);
-      }
-
-      setLastUpdated(new Date());
-    } catch (error) {
-      console.error("Failed to fetch data", error);
-    } finally {
-      setLoading(false);
     }
+
+    // 2. Fetch User Balance & Total Supply via Public RPC (Bulletproof)
+    try {
+      const rpcCall = async (data: string) => {
+        const res = await fetch("https://mainnet.base.org", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            method: "eth_call",
+            params: [{ to: CONTRACT_ADDRESS, data }, "latest"],
+            id: 1
+          })
+        });
+        const json = await res.json();
+        return json.result;
+      };
+
+      // Total Supply (0x18160ddd)
+      const supplyHex = await rpcCall("0x18160ddd");
+      if (supplyHex && supplyHex !== "0x") {
+        setTotalSupply(Number(BigInt(supplyHex)) / 1e18);
+      }
+
+      // User Balance (0x70a08231 + padded address)
+      const paddedAddress = USER_ADDRESS.toLowerCase().replace("0x", "").padStart(64, "0");
+      const balanceHex = await rpcCall("0x70a08231" + paddedAddress);
+      if (balanceHex && balanceHex !== "0x") {
+        setUserBalance(Number(BigInt(balanceHex)) / 1e18);
+      }
+    } catch (error) {
+      console.error("RPC fetch failed", error);
+    }
+
+    // 3. Fetch Contract NAV (quoteSellGBLIN) via Public RPC
+    try {
+      const rpcCall = async (data: string) => {
+        const res = await fetch("https://mainnet.base.org", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            method: "eth_call",
+            params: [{ to: CONTRACT_ADDRESS, data }, "latest"],
+            id: 1
+          })
+        });
+        const json = await res.json();
+        return json.result;
+      };
+
+      // Get ETH price first
+      const wethRes = await fetch("https://api.geckoterminal.com/api/v2/networks/base/tokens/0x4200000000000000000000000000000000000006");
+      const wethData = await wethRes.json();
+      const ethPrice = Number(wethData?.data?.attributes?.price_usd || 0);
+
+      // quoteSellGBLIN(1e18) signature is 0x2a0a45fd + 1e18 in hex
+      const navData = "0x2a0a45fd0000000000000000000000000000000000000000000000000de0b6b3a7640000";
+      const navEthHex = await rpcCall(navData);
+      
+      if (navEthHex && navEthHex !== "0x" && ethPrice > 0) {
+        const navEth = Number(BigInt(navEthHex)) / 1e18;
+        setContractNav(navEth * ethPrice);
+      }
+    } catch (error) {
+      console.error("Failed to fetch Contract NAV", error);
+    }
+
+    // 4. Fetch Transactions via Blockscout API
+    try {
+      const res = await fetch(`https://base.blockscout.com/api?module=account&action=tokentx&contractaddress=${CONTRACT_ADDRESS}&page=1&offset=15&sort=desc`);
+      const json = await res.json();
+      
+      if ((json.status === "1" || json.status === "0") && Array.isArray(json.result)) {
+        const formattedTxs = json.result.map((tx: any) => ({
+          hash: tx.hash,
+          timeStamp: tx.timeStamp,
+          from: tx.from,
+          to: tx.to,
+          value: tx.value
+        }));
+        setTransactions(formattedTxs);
+      } else {
+        console.error("Blockscout API returned error:", json.message);
+      }
+    } catch (error) {
+      console.error("Failed to fetch transactions via Blockscout", error);
+    }
+
+    setLastUpdated(new Date());
+    setLoading(false);
   }, [IS_PRE_LAUNCH]);
 
   useEffect(() => {
