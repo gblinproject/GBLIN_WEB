@@ -119,19 +119,19 @@ export default function GBLINManifesto() {
             <span className="text-amber-500 text-xs font-mono uppercase tracking-[0.3em]">Institutional Vision</span>
             <h2 className="font-serif text-4xl md:text-5xl tracking-tight leading-tight">
               A Vision for <br />
-              <span className="italic">Intrinsic Value</span>
+              <span className="italic">Intrinsic Stability</span>
             </h2>
           </div>
           
           <div className="space-y-8 text-white/70 font-light leading-relaxed text-lg">
             <p>
-              The GBLIN Project was born from a simple yet profound realization: the digital asset space lacks a true anchor of value. While many protocols rely on speculative demand, GBLIN is built on the bedrock of a diversified, high-quality treasury.
+              The GBLIN Project was born from a simple yet profound realization: when major assets like Bitcoin and Ethereum crash, the entire market bleeds. GBLIN is built to cushion that fall. It is not an inflation hedge; it is a shock absorber.
             </p>
             <p>
-              Transparency is our cornerstone. We implement a lean <strong>0.1% protocol fee</strong> on transactions, designed for long-term sustainability. This fee is strategically divided: a significant portion is directly reinvested to <strong>bolster the token&apos;s intrinsic value</strong>, while a fraction supports the creator&apos;s mission to continuously innovate and secure the protocol.
+              By holding a diversified, balanced basket of WETH, cbBTC, and USDC, GBLIN acts as an autonomous central bank. When volatility strikes, the protocol&apos;s internal rebalancing mechanisms work to hold value constant, protecting the index from catastrophic drawdowns.
             </p>
             <p>
-              Every GBLIN token represents a claim on a growing pool of Ethereum, Bitcoin, and stable assets. Our smart contract architecture ensures that as the treasury expands through market appreciation and protocol revenue, the floor price of GBLIN rises. This is the future of backing.
+              Transparency is our cornerstone. We implement a lean <strong>0.1% protocol fee</strong> on transactions, designed for long-term sustainability. This fee is strategically reinvested to <strong>bolster the token&apos;s intrinsic value</strong>, ensuring the floor price of GBLIN is constantly supported by real assets.
             </p>
           </div>
 
@@ -142,7 +142,7 @@ export default function GBLINManifesto() {
               </div>
               <div>
                 <p className="text-sm font-bold uppercase tracking-widest">GBLIN Protocol</p>
-                <p className="text-xs text-white/40 uppercase tracking-widest">The Architect</p>
+                <p className="text-xs text-white/40 uppercase tracking-widest">The Autonomous Central Bank</p>
               </div>
             </div>
             <a 
@@ -162,19 +162,19 @@ export default function GBLINManifesto() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {[
               { 
+                title: 'Shock Absorber', 
+                desc: 'Designed to help hold value constant when BTC and ETH crash, utilizing a balanced basket of assets.',
+                icon: ShieldCheck 
+              },
+              { 
+                title: 'Autonomous Rebalancing', 
+                desc: 'The protocol relies on external callers to recalibrate the asset basket, paying a bounty to the bots that execute it.',
+                icon: Zap 
+              },
+              { 
                 title: 'Intrinsic Growth', 
                 desc: 'The 0.1% fee is hardcoded to feed the treasury, ensuring the floor price has a constant upward pressure.',
                 icon: TrendingUp 
-              },
-              { 
-                title: 'Absolute Transparency', 
-                desc: 'Every fee distribution is visible on-chain. We believe in a clear split between protocol growth and development.',
-                icon: Activity 
-              },
-              { 
-                title: 'Institutional Backing', 
-                desc: 'Your tokens are not just numbers; they are keys to a vault of WETH, cbBTC, and USDC.',
-                icon: ShieldCheck 
               }
             ].map((benefit, i) => (
               <div key={i} className="space-y-4 group">
@@ -231,6 +231,47 @@ export default function GBLINManifesto() {
                     priority
                     referrerPolicy="no-referrer"
                   />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Rebalancing Section */}
+      <section className="py-20 px-6 bg-amber-500/5 border-t border-amber-500/10">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row gap-12 items-center">
+            <div className="flex-1 space-y-6">
+              <span className="text-amber-500 text-xs font-mono uppercase tracking-[0.3em]">MEV & Arbitrage</span>
+              <h2 className="font-serif text-4xl md:text-5xl tracking-tight">
+                Call the Function. <br />
+                <span className="italic text-amber-500">Get Paid.</span>
+              </h2>
+              <p className="text-white/60 leading-relaxed">
+                GBLIN relies on decentralized actors to maintain its peg and balance its treasury. The protocol features a public recalibration function that anyone can call. When the basket deviates from its target weights, bots and arbitrageurs are financially incentivized to trigger the rebalance, earning a direct payout for their service to the network.
+              </p>
+              <div className="flex items-center gap-4 pt-4">
+                <a 
+                  href={`https://basescan.org/address/${CONTRACT_ADDRESS}#writeContract`}
+                  target="_blank"
+                  className="px-6 py-3 bg-amber-500 text-black font-bold rounded-xl hover:bg-amber-400 transition-colors flex items-center gap-2"
+                >
+                  Interact on Basescan <ExternalLink size={16} />
+                </a>
+              </div>
+            </div>
+            <div className="flex-1 w-full">
+              <div className="bg-[#0a0a0a] border border-[#333] p-8 rounded-2xl relative overflow-hidden font-mono text-sm text-zinc-400">
+                <div className="text-emerald-500 mb-4">// The Autonomous Central Bank</div>
+                <div className="space-y-2">
+                  <p><span className="text-blue-400">function</span> <span className="text-yellow-200">recalibrate</span>() <span className="text-blue-400">external</span> {'{'}</p>
+                  <p className="pl-4">require(needsRebalance(), <span className="text-green-400">"Balanced"</span>);</p>
+                  <p className="pl-4 text-zinc-500">// Rebalance WETH, cbBTC, USDC</p>
+                  <p className="pl-4">_executeSwaps();</p>
+                  <p className="pl-4 text-zinc-500">// Pay the caller for their service</p>
+                  <p className="pl-4">_rewardCaller(msg.sender);</p>
+                  <p>{'}'}</p>
                 </div>
               </div>
             </div>
