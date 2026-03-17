@@ -105,7 +105,7 @@ export default function GBLINManifesto() {
                 target="_blank"
                 className="flex items-center gap-2 px-8 py-4 bg-amber-500 text-black font-bold rounded-2xl hover:scale-105 transition-transform"
               >
-                Acquire GBLIN <ArrowRight size={18} />
+                Trade on Aerodrome (Slipstream) <ArrowRight size={18} />
               </a>
             </div>
           </motion.div>
@@ -231,6 +231,56 @@ export default function GBLINManifesto() {
                     priority
                     referrerPolicy="no-referrer"
                   />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Liquidity Section */}
+      <section className="py-20 px-6 bg-[#0a0a0a] border-t border-white/5">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row gap-12 items-center">
+            <div className="flex-1 space-y-6">
+              <span className="text-amber-500 text-xs font-mono uppercase tracking-[0.3em]">Market Infrastructure</span>
+              <h2 className="font-serif text-4xl md:text-5xl tracking-tight">
+                Concentrated <br />
+                <span className="italic text-amber-500">Slipstream Liquidity</span>
+              </h2>
+              <p className="text-white/60 leading-relaxed">
+                GBLIN utilizes Aerodrome&apos;s advanced Slipstream technology. By concentrating liquidity in a specific mathematical range (0.85 - 1.15 WETH), we ensure zero slippage and maximum capital efficiency. The 1% fee tier protects the protocol from predatory arbitrage while rewarding long-term liquidity providers.
+              </p>
+              <div className="flex items-center gap-4 pt-4">
+                <a 
+                  href={`https://aerodrome.finance/swap?from=eth&to=${CONTRACT_ADDRESS}`}
+                  target="_blank"
+                  className="px-6 py-3 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex items-center gap-2"
+                >
+                  Trade on Aerodrome <ExternalLink size={16} />
+                </a>
+              </div>
+            </div>
+            <div className="flex-1 w-full">
+              <div className="bg-[#1A1A1A] border border-[#333] p-8 rounded-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-bl-full -z-0"></div>
+                <div className="relative z-10 space-y-6">
+                  <div className="flex justify-between items-center border-b border-[#333] pb-4">
+                    <span className="text-sm font-mono text-zinc-400">POOL TYPE</span>
+                    <span className="text-sm font-bold text-amber-500">SLIPSTREAM (CONCENTRATED)</span>
+                  </div>
+                  <div className="flex justify-between items-center border-b border-[#333] pb-4">
+                    <span className="text-sm font-mono text-zinc-400">FEE TIER</span>
+                    <span className="text-sm font-bold text-white">1.0%</span>
+                  </div>
+                  <div className="flex justify-between items-center border-b border-[#333] pb-4">
+                    <span className="text-sm font-mono text-zinc-400">PRICE RANGE</span>
+                    <span className="text-sm font-bold text-white">0.80 - 1.15 WETH</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-mono text-zinc-400">DEX</span>
+                    <span className="text-sm font-bold text-blue-400">AERODROME FINANCE</span>
+                  </div>
                 </div>
               </div>
             </div>

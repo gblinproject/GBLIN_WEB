@@ -81,7 +81,8 @@ export function Dashboard() {
         if (dexData.pairs && dexData.pairs.length > 0) {
           // Sort pairs by liquidity to get the most accurate one
           const sortedPairs = dexData.pairs.sort((a: any, b: any) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0));
-          const pair = sortedPairs.find((p: any) => p.chainId === 'base') || sortedPairs[0];
+          // Prioritize the Slipstream pair (0xDaEcC15bF028Bc4d135260D044b87001dafb3c22)
+          const pair = sortedPairs.find((p: any) => p.pairAddress.toLowerCase() === '0xdaecc15bf028bc4d135260d044b87001dafb3c22') || sortedPairs.find((p: any) => p.chainId === 'base') || sortedPairs[0];
           setPriceUsd(Number(pair.priceUsd || 0));
           setVolume24h(Number(pair.volume?.h24 || 0));
         } else {
@@ -222,7 +223,7 @@ export function Dashboard() {
           <div className="text-2xl font-bold text-[#E4E3E0]">
             {formatCurrency(priceUsd)}
           </div>
-          <div className="text-xs text-zinc-500 mt-1">AERODROME MARKET DATA</div>
+          <div className="text-xs text-zinc-500 mt-1">AERODROME SLIPSTREAM (1%)</div>
         </div>
 
         {/* CONTRACT NAV */}
@@ -247,7 +248,7 @@ export function Dashboard() {
           <div className="text-2xl font-bold text-[#E4E3E0]">
             {formatCurrency(volume24h)}
           </div>
-          <div className="text-xs text-zinc-500 mt-1">AERODROME POOL</div>
+          <div className="text-xs text-zinc-500 mt-1">AERODROME SLIPSTREAM (1%)</div>
         </div>
 
         {/* TOTAL SUPPLY */}
@@ -286,7 +287,7 @@ export function Dashboard() {
               rel="noreferrer"
               className="text-xs border border-amber-500/30 text-amber-500 hover:bg-amber-500/10 px-3 py-1 rounded-sm flex items-center gap-2 transition-colors uppercase tracking-widest font-bold"
             >
-              Trade on Aerodrome
+              Trade on Slipstream (1%)
             </a>
             <div className="text-xs text-zinc-500 hidden md:block">
               LAST SYNC: {lastUpdated ? lastUpdated.toLocaleTimeString() : '--:--:--'}
@@ -306,6 +307,7 @@ export function Dashboard() {
           <table className="w-full text-left text-sm">
             <thead className="text-xs text-zinc-500 uppercase bg-[#111]">
               <tr>
+                <th className="px-4 py-2 font-normal">Type</th>
                 <th className="px-4 py-2 font-normal">Time</th>
                 <th className="px-4 py-2 font-normal">Tx Hash</th>
                 <th className="px-4 py-2 font-normal">From</th>
@@ -316,42 +318,67 @@ export function Dashboard() {
             <tbody className="divide-y divide-[#333]">
               {transactions.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-zinc-500">
+                  <td colSpan={6} className="px-4 py-8 text-center text-zinc-500">
                     {loading ? "Scanning blockchain..." : "No transactions found yet."}
                   </td>
                 </tr>
               ) : (
-                transactions.map((tx, idx) => (
-                  <tr key={`${tx.hash}-${tx.logIndex || idx}`} className="hover:bg-[#222] transition-colors">
-                    <td className="px-4 py-3 text-zinc-400 whitespace-nowrap">
-                      {formatDistanceToNow(new Date(Number(tx.timeStamp) * 1000), { addSuffix: true })}
-                    </td>
-                    <td className="px-4 py-3">
-                      <a href={`https://basescan.org/tx/${tx.hash}`} target="_blank" rel="noreferrer" className="text-amber-500 hover:underline font-mono text-xs">
-                        {formatAddress(tx.hash)}
-                      </a>
-                    </td>
-                    <td className="px-4 py-3 text-zinc-400 font-mono text-xs">
-                      {tx.from.toLowerCase() === "0x0000000000000000000000000000000000000000" ? (
-                        <span className="text-yellow-500">NullAddress (Mint)</span>
-                      ) : tx.from.toLowerCase() === USER_ADDRESS.toLowerCase() ? (
-                        <span className="text-blue-400">You</span>
-                      ) : (
-                        formatAddress(tx.from)
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-zinc-400 font-mono text-xs">
-                      {tx.to.toLowerCase() === USER_ADDRESS.toLowerCase() ? (
-                        <span className="text-blue-400">You</span>
-                      ) : (
-                        formatAddress(tx.to)
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-[#E4E3E0] text-right font-mono">
-                      {formatValue(tx.value)}
-                    </td>
-                  </tr>
-                ))
+                transactions.map((tx, idx) => {
+                  let txType = "Send";
+                  let typeColor = "text-zinc-400";
+                  const fromLower = tx.from.toLowerCase();
+                  const toLower = tx.to.toLowerCase();
+                  
+                  if (fromLower === "0x0000000000000000000000000000000000000000") {
+                    txType = "Mint";
+                    typeColor = "text-emerald-500";
+                  } else if (toLower === "0x0000000000000000000000000000000000000000") {
+                    txType = "Burn";
+                    typeColor = "text-red-500";
+                  } else if (fromLower.startsWith("0xdaec") && fromLower.endsWith("3c22")) {
+                    txType = "Buy";
+                    typeColor = "text-emerald-400";
+                  } else if (toLower.startsWith("0xdaec") && toLower.endsWith("3c22")) {
+                    txType = "Sell / LP";
+                    typeColor = "text-red-400";
+                  } else {
+                    txType = "Send";
+                    typeColor = "text-blue-400";
+                  }
+
+                  return (
+                    <tr key={`${tx.hash}-${tx.logIndex || idx}`} className="hover:bg-[#222] transition-colors">
+                      <td className={`px-4 py-3 text-xs font-bold uppercase tracking-widest ${typeColor}`}>
+                        {txType}
+                      </td>
+                      <td className="px-4 py-3 text-zinc-400 whitespace-nowrap">
+                        {formatDistanceToNow(new Date(Number(tx.timeStamp) * 1000), { addSuffix: true })}
+                      </td>
+                      <td className="px-4 py-3">
+                        <a href={`https://basescan.org/tx/${tx.hash}`} target="_blank" rel="noreferrer" className="text-amber-500 hover:underline font-mono text-xs">
+                          {formatAddress(tx.hash)}
+                        </a>
+                      </td>
+                      <td className="px-4 py-3 text-zinc-400 font-mono text-xs">
+                        {fromLower === "0x0000000000000000000000000000000000000000" ? (
+                          <span className="text-yellow-500">NullAddress (Mint)</span>
+                        ) : (
+                          formatAddress(tx.from)
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-zinc-400 font-mono text-xs">
+                        {toLower === "0x0000000000000000000000000000000000000000" ? (
+                          <span className="text-yellow-500">NullAddress (Burn)</span>
+                        ) : (
+                          formatAddress(tx.to)
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-[#E4E3E0] text-right font-mono">
+                        {formatValue(tx.value)}
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
