@@ -74,42 +74,45 @@ export function Dashboard() {
       setPriceUsd(0);
       setVolume24h(0);
     } else {
-      // 1. Fetch Market Data (GeckoTerminal Pools endpoint for accurate volume)
+      // 1. Fetch Market Data (Prioritize DexScreener for real-time tick matching)
       try {
-        const marketRes = await fetch(`https://api.geckoterminal.com/api/v2/networks/base/tokens/${CONTRACT_ADDRESS}/pools`);
-        if (!marketRes.ok) throw new Error("GeckoTerminal response not ok");
-        const marketData = await marketRes.json();
-        
-        if (marketData.data && marketData.data.length > 0) {
-          // Find the pool with the highest volume or just the first one (usually Aerodrome)
-          const pool = marketData.data[0].attributes;
-          setPriceUsd(Number(pool.base_token_price_usd || 0));
-          setVolume24h(Number(pool.volume_usd?.h24 || 0));
+        const dexRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${CONTRACT_ADDRESS}`);
+        const dexData = await dexRes.json();
+        if (dexData.pairs && dexData.pairs.length > 0) {
+          // Sort pairs by liquidity to get the most accurate one
+          const sortedPairs = dexData.pairs.sort((a: any, b: any) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0));
+          const pair = sortedPairs.find((p: any) => p.chainId === 'base') || sortedPairs[0];
+          setPriceUsd(Number(pair.priceUsd || 0));
+          setVolume24h(Number(pair.volume?.h24 || 0));
         } else {
-          throw new Error("No pools found for token");
+          throw new Error("No pairs found on DexScreener");
         }
-      } catch (geckoError) {
-        console.warn("GeckoTerminal Pools failed, trying DexScreener...", geckoError);
+      } catch (dexError) {
+        console.warn("DexScreener failed, trying GeckoTerminal...", dexError);
         try {
-          const dexRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${CONTRACT_ADDRESS}`);
-          const dexData = await dexRes.json();
-          if (dexData.pairs && dexData.pairs.length > 0) {
-            const pair = dexData.pairs.find((p: any) => p.chainId === 'base') || dexData.pairs[0];
-            setPriceUsd(Number(pair.priceUsd || 0));
-            setVolume24h(Number(pair.volume?.h24 || 0));
+          const marketRes = await fetch(`https://api.geckoterminal.com/api/v2/networks/base/tokens/${CONTRACT_ADDRESS}/pools`);
+          if (!marketRes.ok) throw new Error("GeckoTerminal response not ok");
+          const marketData = await marketRes.json();
+          
+          if (marketData.data && marketData.data.length > 0) {
+            const pool = marketData.data[0].attributes;
+            setPriceUsd(Number(pool.base_token_price_usd || 0));
+            setVolume24h(Number(pool.volume_usd?.h24 || 0));
           }
-        } catch (dexError) {
-          console.error("Market data fetch failed completely", dexError);
+        } catch (geckoError) {
+          console.error("Market data fetch failed completely", geckoError);
         }
       }
     }
 
     // 2. Fetch User Balance & Total Supply via Public RPC
+    let currentSupply = 0;
     try {
       // Total Supply (0x18160ddd)
       const supplyHex = await rpcCall("0x18160ddd");
       if (supplyHex && supplyHex !== "0x") {
-        setTotalSupply(Number(BigInt(supplyHex)) / 1e18);
+        currentSupply = Number(BigInt(supplyHex)) / 1e18;
+        setTotalSupply(currentSupply);
       }
 
       // User Balance (0x70a08231 + padded address)
@@ -143,7 +146,12 @@ export function Dashboard() {
       
       if (navEthHex && navEthHex !== "0x" && ethPrice > 0) {
         const navEth = Number(BigInt(navEthHex)) / 1e18;
-        setContractNav(navEth * ethPrice);
+        // If supply is 0, the contract defaults NAV to 1 ETH. We override to 0 for display to match Basescan.
+        if (currentSupply === 0) {
+          setContractNav(0);
+        } else {
+          setContractNav(navEth * ethPrice);
+        }
       }
     } catch (error) {
       console.error("Failed to fetch Contract NAV", error);
@@ -212,7 +220,7 @@ export function Dashboard() {
             <DollarSign className="w-4 h-4 text-amber-500" />
           </div>
           <div className="text-2xl font-bold text-[#E4E3E0]">
-            {priceUsd > 0 ? formatCurrency(priceUsd) : <span className="text-amber-500/50 text-xl tracking-widest">AWAITING LP</span>}
+            {formatCurrency(priceUsd)}
           </div>
           <div className="text-xs text-zinc-500 mt-1">AERODROME MARKET DATA</div>
         </div>
@@ -225,7 +233,7 @@ export function Dashboard() {
             <ShieldAlert className="w-4 h-4 text-emerald-500" />
           </div>
           <div className="text-2xl font-bold text-emerald-400 relative z-10">
-            {contractNav > 0 ? formatCurrency(contractNav) : <span className="text-zinc-500 text-xl tracking-widest">CALCULATING...</span>}
+            {formatCurrency(contractNav)}
           </div>
           <div className="text-xs text-emerald-500/70 mt-1 relative z-10">REAL ASSET BACKING</div>
         </div>
@@ -237,7 +245,7 @@ export function Dashboard() {
             <BarChart3 className="w-4 h-4 text-amber-500" />
           </div>
           <div className="text-2xl font-bold text-[#E4E3E0]">
-            {volume24h > 0 ? formatCurrency(volume24h) : <span className="text-amber-500/50 text-xl tracking-widest">AWAITING LP</span>}
+            {formatCurrency(volume24h)}
           </div>
           <div className="text-xs text-zinc-500 mt-1">AERODROME POOL</div>
         </div>
@@ -272,7 +280,15 @@ export function Dashboard() {
             Live Network Telemetry
           </h3>
           <div className="flex items-center gap-4">
-            <div className="text-xs text-zinc-500">
+            <a 
+              href={`https://aerodrome.finance/swap?from=eth&to=${CONTRACT_ADDRESS}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs border border-amber-500/30 text-amber-500 hover:bg-amber-500/10 px-3 py-1 rounded-sm flex items-center gap-2 transition-colors uppercase tracking-widest font-bold"
+            >
+              Trade on Aerodrome
+            </a>
+            <div className="text-xs text-zinc-500 hidden md:block">
               LAST SYNC: {lastUpdated ? lastUpdated.toLocaleTimeString() : '--:--:--'}
             </div>
             <button 
