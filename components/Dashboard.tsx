@@ -308,6 +308,31 @@ export function Dashboard() {
         </div>
       </div>
 
+      {/* VERIFICATION STATUS TRACKER */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-[#1A1A1A] border border-[#333] p-4 rounded-sm flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">BaseScan Metadata</span>
+          </div>
+          <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">In Review (Day 3)</span>
+        </div>
+        <div className="bg-[#1A1A1A] border border-[#333] p-4 rounded-sm flex items-center justify-between opacity-50">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-amber-500" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Coinbase Asset Hub</span>
+          </div>
+          <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">Pending BaseScan</span>
+        </div>
+        <div className="bg-[#1A1A1A] border border-[#333] p-4 rounded-sm flex items-center justify-between opacity-50">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-zinc-500" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">DexScreener Ads</span>
+          </div>
+          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Post-Verification</span>
+        </div>
+      </div>
+
       {/* TOP METRICS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* PRICE POOL */}
