@@ -160,20 +160,32 @@ export function Dashboard() {
 
     // 4. Fetch Transactions via Proxy (Basescan)
     try {
-      const res = await fetch(`/api/basescan?module=account&action=tokentx&contractaddress=${CONTRACT_ADDRESS}&page=1&offset=10&sort=desc`);
-      const json = await res.json();
-      
-      if (json.status === "1" && Array.isArray(json.result)) {
-        const formattedTxs = json.result.slice(0, 10).map((tx: any) => ({
-          hash: tx.hash,
-          timeStamp: tx.timeStamp,
-          from: tx.from,
-          to: tx.to,
-          value: tx.value,
-          logIndex: tx.logIndex
-        }));
-        setTransactions(formattedTxs);
-      } else {
+      let txsFetched = false;
+      try {
+        const res = await fetch(`/api/basescan?module=account&action=tokentx&contractaddress=${CONTRACT_ADDRESS}&page=1&offset=10&sort=desc`);
+        if (res.ok) {
+          const contentType = res.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const json = await res.json();
+            if (json.status === "1" && Array.isArray(json.result)) {
+              const formattedTxs = json.result.slice(0, 10).map((tx: any) => ({
+                hash: tx.hash,
+                timeStamp: tx.timeStamp,
+                from: tx.from,
+                to: tx.to,
+                value: tx.value,
+                logIndex: tx.logIndex
+              }));
+              setTransactions(formattedTxs);
+              txsFetched = true;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Basescan proxy failed, falling back to Blockscout", e);
+      }
+
+      if (!txsFetched) {
         // Fallback to Blockscout if Basescan proxy fails or returns no data
         const bsRes = await fetch(`https://base.blockscout.com/api?module=account&action=tokentx&contractaddress=${CONTRACT_ADDRESS}&page=1&offset=10&sort=desc`);
         const bsJson = await bsRes.json();
@@ -189,7 +201,7 @@ export function Dashboard() {
         }
       }
     } catch (error) {
-      console.error("Failed to fetch transactions", error);
+      console.error("Failed to fetch transactions completely", error);
     }
 
     setLastUpdated(new Date());
