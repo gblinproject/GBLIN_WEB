@@ -263,14 +263,14 @@ export default function GBLINManifesto() {
             </div>
             <div className="flex-1 w-full">
               <div className="bg-[#0a0a0a] border border-[#333] p-8 rounded-2xl relative overflow-hidden font-mono text-sm text-zinc-400">
-                <div className="text-emerald-500 mb-4">// The Autonomous Central Bank</div>
+                <div className="text-emerald-500 mb-4">{`// The Autonomous Central Bank`}</div>
                 <div className="space-y-2">
                   <p><span className="text-blue-400">function</span> <span className="text-yellow-200">recalibrate</span>() <span className="text-blue-400">external</span> {'{'}</p>
-                  <p className="pl-4">require(needsRebalance(), <span className="text-green-400">"Balanced"</span>);</p>
-                  <p className="pl-4 text-zinc-500">// Rebalance WETH, cbBTC, USDC</p>
+                  <p className="pl-4">require(needsRebalance(), <span className="text-green-400">&quot;Balanced&quot;</span>);</p>
+                  <p className="pl-4 text-zinc-500">{`// Rebalance WETH, cbBTC, USDC`}</p>
                   <p className="pl-4">_executeSwaps();</p>
-                  <p className="pl-4 text-zinc-500">// Pay the caller for their service</p>
-                  <p className="pl-4">_rewardCaller(msg.sender);</p>
+                  <p className="pl-4 text-zinc-500">{`// Pay the caller for their service`}</p>
+                  <p>_rewardCaller(msg.sender);</p>
                   <p>{'}'}</p>
                 </div>
               </div>
