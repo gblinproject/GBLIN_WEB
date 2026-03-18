@@ -315,7 +315,10 @@ export function Dashboard() {
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">BaseScan Metadata</span>
           </div>
-          <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">In Review (Day 3)</span>
+          <div className="text-right">
+            <span className="block text-[10px] font-bold text-emerald-500 uppercase tracking-widest">In Review (Day 3)</span>
+            <span className="block text-[8px] text-zinc-500 uppercase tracking-tighter">Ticket #797143 Verified</span>
+          </div>
         </div>
         <div className="bg-[#1A1A1A] border border-[#333] p-4 rounded-sm flex items-center justify-between opacity-50">
           <div className="flex items-center gap-3">
