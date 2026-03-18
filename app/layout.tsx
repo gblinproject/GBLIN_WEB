@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${cormorant.variable} ${mono.variable}`}>
       <head>
-        <link rel="icon" href="https://raw.githubusercontent.com/gblinproject/GBLIN/main/LOGO_GBLIN.svg" />
+        <link rel="icon" href="https://raw.githubusercontent.com/rubbe89/gblin-assets/main/LOGO_GBLIN.png" />
       </head>
       <body className="bg-[#050505] text-white antialiased selection:bg-amber-500/30">
         {children}

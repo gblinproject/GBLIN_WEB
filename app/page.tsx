@@ -39,7 +39,7 @@ export default function GBLINManifesto() {
           <div className="flex items-center gap-4">
             <div className="relative w-14 h-14 aspect-square rounded-full overflow-hidden">
               <Image 
-                src="https://raw.githubusercontent.com/gblinproject/GBLIN/main/LOGO_GBLIN.svg"
+                src="https://raw.githubusercontent.com/rubbe89/gblin-assets/main/LOGO_GBLIN.png"
                 alt="GBLIN Logo"
                 fill
                 unoptimized
@@ -90,23 +90,34 @@ export default function GBLINManifesto() {
               Just pure mathematical rebalancing across the strongest assets on Base.
             </p>
 
-            <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-8">
+              <a 
+                href={`https://aerodrome.finance/swap?outputCurrency=${CONTRACT_ADDRESS}`}
+                target="_blank"
+                className="flex items-center justify-center gap-3 px-10 py-5 bg-amber-500 text-black text-xl font-bold rounded-2xl hover:bg-amber-400 hover:scale-105 transition-all shadow-[0_0_40px_rgba(245,158,11,0.4)]"
+              >
+                BUY GBLIN <ArrowRight size={24} />
+              </a>
+              <a 
+                href="https://www.geckoterminal.com/base/pools/0xdaecc15bf028bc4d135260d044b87001dafb3c22"
+                target="_blank"
+                className="flex items-center justify-center gap-3 px-10 py-5 bg-white/10 border border-white/20 text-white text-xl font-bold rounded-2xl hover:bg-white/20 hover:scale-105 transition-all backdrop-blur-md"
+              >
+                LIVE CHART <Activity size={24} />
+              </a>
+            </div>
+            
+            <div className="flex justify-center">
               <button 
                 onClick={copyToClipboard}
-                className="group flex items-center gap-3 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all"
+                className="group flex items-center gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-all"
               >
-                <code className="font-mono text-sm opacity-70">
-                  {CONTRACT_ADDRESS.slice(0, 6)}...{CONTRACT_ADDRESS.slice(-4)}
+                <span className="hidden sm:inline text-xs uppercase tracking-widest opacity-50">Contract:</span>
+                <code className="font-mono text-sm opacity-80">
+                  {CONTRACT_ADDRESS}
                 </code>
                 {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} className="opacity-40 group-hover:opacity-100" />}
               </button>
-              <a 
-                href={`https://aerodrome.finance/swap?from=eth&to=${CONTRACT_ADDRESS}`}
-                target="_blank"
-                className="flex items-center gap-2 px-8 py-4 bg-amber-500 text-black font-bold rounded-2xl hover:scale-105 transition-transform"
-              >
-                Trade on Aerodrome (Slipstream) <ArrowRight size={18} />
-              </a>
             </div>
           </motion.div>
         </div>
@@ -221,11 +232,10 @@ export default function GBLINManifesto() {
                 <div className="absolute inset-0 bg-amber-500/5 blur-[120px] rounded-full opacity-30 animate-pulse" />
                 <div className="relative w-full h-full rounded-full overflow-hidden">
                   <Image 
-                    src="https://raw.githubusercontent.com/gblinproject/GBLIN/main/LOGO_GBLIN.svg"
+                    src="https://raw.githubusercontent.com/rubbe89/gblin-assets/main/LOGO_GBLIN.png"
                     alt="GBLIN Core"
                     fill
-                    quality={100}
-                    sizes="840px"
+                    unoptimized
                     className="object-cover scale-[1.02] hover:scale-[1.05] transition-transform duration-700"
                     style={{ imageRendering: 'auto' }}
                     priority
@@ -368,7 +378,7 @@ export default function GBLINManifesto() {
           <div className="flex flex-col items-center gap-6">
             <div className="relative w-32 h-32 aspect-square rounded-full overflow-hidden">
               <Image 
-                src="https://raw.githubusercontent.com/gblinproject/GBLIN/main/LOGO_GBLIN.svg"
+                src="https://raw.githubusercontent.com/rubbe89/gblin-assets/main/LOGO_GBLIN.png"
                 alt="GBLIN Logo"
                 fill
                 unoptimized

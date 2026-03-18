@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { Activity, Database, ShieldAlert, RefreshCw, DollarSign, ListOrdered, Wallet, BarChart3 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { ethers } from "ethers";
 
 interface Transaction {
   hash: string;
@@ -11,6 +12,7 @@ interface Transaction {
   from: string;
   to: string;
   value: string;
+  type?: string;
   logIndex?: string;
 }
 
@@ -158,50 +160,98 @@ export function Dashboard() {
       console.error("Failed to fetch Contract NAV", error);
     }
 
-    // 4. Fetch Transactions via Proxy (Basescan)
+    // 4. Fetch Transactions via RPC Logs (100% Live & Accurate)
     try {
-      let txsFetched = false;
-      try {
-        const res = await fetch(`/api/basescan?module=account&action=tokentx&contractaddress=${CONTRACT_ADDRESS}&page=1&offset=10&sort=desc`);
-        if (res.ok) {
-          const contentType = res.headers.get("content-type");
-          if (contentType && contentType.includes("application/json")) {
-            const json = await res.json();
-            if (json.status === "1" && Array.isArray(json.result)) {
-              const formattedTxs = json.result.slice(0, 10).map((tx: any) => ({
-                hash: tx.hash,
-                timeStamp: tx.timeStamp,
-                from: tx.from,
-                to: tx.to,
-                value: tx.value,
-                logIndex: tx.logIndex
-              }));
-              setTransactions(formattedTxs);
-              txsFetched = true;
-            }
+      const provider = new ethers.JsonRpcProvider(RPC_ENDPOINTS[0]);
+      const currentBlock = await provider.getBlockNumber();
+      const fromBlock = currentBlock - 5000; // Last ~3 hours of activity
+
+      const filter = {
+        address: CONTRACT_ADDRESS,
+        fromBlock,
+        toBlock: "latest"
+      };
+
+      const logs = await provider.getLogs(filter);
+      
+      const txMap = new Map<string, any>();
+      
+      const eventInterfaces = new ethers.Interface([
+        "event Minted(address indexed user, uint256 ethIn, uint256 gblinOut)",
+        "event Burned(address indexed user, uint256 gblinIn)",
+        "event Approval(address indexed owner, address indexed spender, uint256 value)",
+        "event Transfer(address indexed from, address indexed to, uint256 value)"
+      ]);
+
+      for (const log of logs) {
+        try {
+          const parsed = eventInterfaces.parseLog(log);
+          if (!parsed) continue;
+
+          const existing = txMap.get(log.transactionHash);
+          // Prioritize Minted/Burned over Transfer
+          if (existing && (existing.type === "Minted" || existing.type === "Burned")) continue;
+
+          let from = "";
+          let to = "";
+          let value = "0";
+
+          if (parsed.name === "Transfer") {
+            from = parsed.args[0];
+            to = parsed.args[1];
+            value = parsed.args[2].toString();
+          } else if (parsed.name === "Approval") {
+            from = parsed.args[0];
+            to = parsed.args[1];
+            value = "0"; // Approvals don't have a "value" in terms of token movement
+          } else if (parsed.name === "Minted") {
+            from = "0x0000000000000000000000000000000000000000";
+            to = parsed.args[0];
+            value = parsed.args[2].toString();
+          } else if (parsed.name === "Burned") {
+            from = parsed.args[0];
+            to = "0x0000000000000000000000000000000000000000";
+            value = parsed.args[1].toString();
           }
+
+          txMap.set(log.transactionHash, {
+            hash: log.transactionHash,
+            blockNumber: log.blockNumber,
+            type: parsed.name,
+            from,
+            to,
+            value,
+            logIndex: log.index
+          });
+        } catch (e) {
+          continue;
         }
-      } catch (e) {
-        console.warn("Basescan proxy failed, falling back to Blockscout", e);
       }
 
-      if (!txsFetched) {
-        // Fallback to Blockscout if Basescan proxy fails or returns no data
-        const bsRes = await fetch(`https://base.blockscout.com/api?module=account&action=tokentx&contractaddress=${CONTRACT_ADDRESS}&page=1&offset=10&sort=desc`);
-        const bsJson = await bsRes.json();
-        if (Array.isArray(bsJson.result)) {
-          setTransactions(bsJson.result.slice(0, 10).map((tx: any) => ({
-            hash: tx.hash,
-            timeStamp: tx.timeStamp,
-            from: tx.from,
-            to: tx.to,
-            value: tx.value,
-            logIndex: tx.logIndex
-          })));
+      const sortedTxs = Array.from(txMap.values())
+        .sort((a, b) => b.blockNumber - a.blockNumber || b.logIndex - a.logIndex)
+        .slice(0, 10);
+
+      const uniqueBlocks = Array.from(new Set(sortedTxs.map(tx => tx.blockNumber)));
+      const blockData = new Map<number, number>();
+      
+      await Promise.all(uniqueBlocks.map(async (bn) => {
+        try {
+          const block = await provider.getBlock(bn);
+          if (block) blockData.set(bn, block.timestamp);
+        } catch (e) {
+          console.warn(`Failed to fetch block ${bn}`, e);
         }
-      }
+      }));
+
+      const finalTxs = sortedTxs.map(tx => ({
+        ...tx,
+        timeStamp: (blockData.get(tx.blockNumber) || Math.floor(Date.now() / 1000)).toString()
+      }));
+
+      setTransactions(finalTxs);
     } catch (error) {
-      console.error("Failed to fetch transactions completely", error);
+      console.error("RPC Log fetch failed completely", error);
     }
 
     setLastUpdated(new Date());
@@ -336,26 +386,37 @@ export function Dashboard() {
                 </tr>
               ) : (
                 transactions.map((tx, idx) => {
-                  let txType = "Send";
+                  let txType = tx.type || "Transfer";
                   let typeColor = "text-zinc-400";
                   const fromLower = tx.from.toLowerCase();
                   const toLower = tx.to.toLowerCase();
                   
-                  if (fromLower === "0x0000000000000000000000000000000000000000") {
-                    txType = "Mint";
+                  if (txType === "Minted") {
+                    txType = "Buy GBLIN";
                     typeColor = "text-emerald-500";
-                  } else if (toLower === "0x0000000000000000000000000000000000000000") {
-                    txType = "Burn";
+                  } else if (txType === "Burned") {
+                    txType = "Sell GBLIN";
                     typeColor = "text-red-500";
-                  } else if (fromLower.startsWith("0xdaec") && fromLower.endsWith("3c22")) {
-                    txType = "Buy";
-                    typeColor = "text-emerald-400";
-                  } else if (toLower.startsWith("0xdaec") && toLower.endsWith("3c22")) {
-                    txType = "Sell / LP";
-                    typeColor = "text-red-400";
-                  } else {
-                    txType = "Send";
+                  } else if (txType === "Approval") {
+                    txType = "Approve";
                     typeColor = "text-blue-400";
+                  } else if (txType === "Transfer") {
+                    if (fromLower === "0x0000000000000000000000000000000000000000") {
+                      txType = "Mint / Buy";
+                      typeColor = "text-emerald-500";
+                    } else if (toLower === "0x0000000000000000000000000000000000000000") {
+                      txType = "Burn / Sell";
+                      typeColor = "text-red-500";
+                    } else if (fromLower.startsWith("0xdaec") && fromLower.endsWith("3c22")) {
+                      txType = "Buy (DEX)";
+                      typeColor = "text-emerald-400";
+                    } else if (toLower.startsWith("0xdaec") && toLower.endsWith("3c22")) {
+                      txType = "Sell (DEX)";
+                      typeColor = "text-red-400";
+                    } else {
+                      txType = "Transfer";
+                      typeColor = "text-blue-400";
+                    }
                   }
 
                   return (
@@ -373,14 +434,14 @@ export function Dashboard() {
                       </td>
                       <td className="px-4 py-3 text-zinc-400 font-mono text-xs">
                         {fromLower === "0x0000000000000000000000000000000000000000" ? (
-                          <span className="text-yellow-500">NullAddress (Mint)</span>
+                          <span className="text-yellow-500">NullAddress</span>
                         ) : (
                           formatAddress(tx.from)
                         )}
                       </td>
                       <td className="px-4 py-3 text-zinc-400 font-mono text-xs">
                         {toLower === "0x0000000000000000000000000000000000000000" ? (
-                          <span className="text-yellow-500">NullAddress (Burn)</span>
+                          <span className="text-yellow-500">NullAddress</span>
                         ) : (
                           formatAddress(tx.to)
                         )}
