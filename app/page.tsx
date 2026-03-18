@@ -411,6 +411,32 @@ export default function GBLINManifesto() {
             <a href="https://dexscreener.com" className="hover:text-amber-500 transition-colors">DexScreener</a>
             <a href="https://aerodrome.finance" className="hover:text-amber-500 transition-colors">Aerodrome</a>
           </div>
+
+          <div className="pt-12 border-t border-white/5">
+            <div className="max-w-xl mx-auto p-8 bg-amber-500/5 border border-amber-500/20 rounded-2xl">
+              <h3 className="text-xl font-serif italic mb-4 text-amber-500">Join the Institutional Movement</h3>
+              <p className="text-sm text-zinc-400 mb-6">
+                Follow our official channels for real-time telemetry updates, governance proposals, and strategic insights.
+              </p>
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <a 
+                  href="https://x.com/GBLIN_Protocol" 
+                  target="_blank" 
+                  className="px-6 py-3 bg-white text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-amber-400 transition-all"
+                >
+                  Follow on X
+                </a>
+                <a 
+                  href="https://warpcast.com/gblin" 
+                  target="_blank" 
+                  className="px-6 py-3 bg-white/10 border border-white/20 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-white/20 transition-all"
+                >
+                  Warpcast (Farcaster)
+                </a>
+              </div>
+            </div>
+          </div>
+
           <p className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-30">
             © 2026 GBLIN Protocol. Built for the Base Ecosystem.
           </p>
