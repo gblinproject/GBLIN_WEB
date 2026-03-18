@@ -55,13 +55,23 @@ export function Dashboard() {
       "https://base.llamarpc.com",
       "https://base-mainnet.public.blastapi.io",
       "https://base.meowrpc.com",
-      "https://base.drpc.org"
+      "https://base.drpc.org",
+      "https://base-rpc.publicnode.com",
+      "https://base.api.onfinality.io/public",
+      "https://base.gateway.tenderly.co"
     ];
 
     const rpcRequest = async (method: string, params: any[]) => {
-      for (const endpoint of RPC_ENDPOINTS) {
+      const endpoints = [...RPC_ENDPOINTS];
+      // Shuffle endpoints to distribute load and avoid sticky failures
+      for (let i = endpoints.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [endpoints[i], endpoints[j]] = [endpoints[j], endpoints[i]];
+      }
+
+      for (const endpoint of endpoints) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
         try {
           const res = await fetch(endpoint, {
             method: "POST",
@@ -70,7 +80,7 @@ export function Dashboard() {
               jsonrpc: "2.0",
               method,
               params,
-              id: Math.floor(Math.random() * 1000)
+              id: Date.now()
             }),
             signal: controller.signal
           });
@@ -85,6 +95,8 @@ export function Dashboard() {
         } catch (e) {
           clearTimeout(timeoutId);
           console.warn(`RPC call failed for ${endpoint} (${method})`, e);
+          // Small delay before trying next endpoint to allow for transient network recovery
+          await new Promise(resolve => setTimeout(resolve, 300));
           continue;
         }
       }
@@ -92,7 +104,14 @@ export function Dashboard() {
     };
 
     const rpcCall = async (data: string) => {
-      return rpcRequest("eth_call", [{ to: CONTRACT_ADDRESS, data }, "latest"]);
+      try {
+        const result = await rpcRequest("eth_call", [{ to: CONTRACT_ADDRESS, data }, "latest"]);
+        if (!result || result === "0x") return null;
+        return result;
+      } catch (e) {
+        console.warn("rpcCall failed", e);
+        return null;
+      }
     };
 
     if (IS_PRE_LAUNCH) {
@@ -186,14 +205,20 @@ export function Dashboard() {
     // 4. Fetch Transactions via RPC Logs (100% Live & Accurate)
     try {
       const currentBlockHex = await rpcRequest("eth_blockNumber", []);
+      if (!currentBlockHex) throw new Error("Could not fetch block number");
+      
       const currentBlock = Number(BigInt(currentBlockHex));
-      const fromBlock = "0x" + (currentBlock - 5000).toString(16);
+      const range = 100000; // Increased range to ~55 hours to find more transactions
+      const fromBlockNum = Math.max(0, currentBlock - range);
+      const fromBlock = "0x" + fromBlockNum.toString(16);
 
       const logs = await rpcRequest("eth_getLogs", [{
-        address: CONTRACT_ADDRESS,
+        address: CONTRACT_ADDRESS.toLowerCase(),
         fromBlock,
         toBlock: "latest"
       }]);
+      
+      if (!Array.isArray(logs)) throw new Error("Logs is not an array");
       
       const txMap = new Map<string, any>();
       
@@ -237,12 +262,12 @@ export function Dashboard() {
 
           txMap.set(log.transactionHash, {
             hash: log.transactionHash,
-            blockNumber: log.blockNumber,
+            blockNumber: Number(BigInt(log.blockNumber)),
             type: parsed.name,
             from,
             to,
             value,
-            logIndex: log.index
+            logIndex: Number(BigInt(log.logIndex || log.transactionIndex || "0x0"))
           });
         } catch (e) {
           continue;
@@ -258,9 +283,9 @@ export function Dashboard() {
       
       await Promise.all(uniqueBlocks.map(async (bn) => {
         try {
-          const block = await rpcRequest("eth_getBlockByNumber", ["0x" + bn.toString(16), false]);
+          const block = await rpcRequest("eth_getBlockByNumber", ["0x" + Number(bn).toString(16), false]);
           if (block && block.timestamp) {
-            blockData.set(bn, Number(BigInt(block.timestamp)));
+            blockData.set(Number(bn), Number(BigInt(block.timestamp)));
           }
         } catch (e) {
           console.warn(`Failed to fetch block ${bn}`, e);
