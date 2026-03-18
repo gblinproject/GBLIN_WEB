@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { Activity, Database, ShieldAlert, RefreshCw, DollarSign, ListOrdered, Wallet, BarChart3 } from "lucide-react";
+import { Activity, Database, ShieldAlert, RefreshCw, DollarSign, ListOrdered, Wallet, BarChart3, CreditCard, ExternalLink } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { ethers } from "ethers";
+import { JsonRpcProvider, Interface } from "ethers";
 
 interface Transaction {
   hash: string;
@@ -162,7 +162,7 @@ export function Dashboard() {
 
     // 4. Fetch Transactions via RPC Logs (100% Live & Accurate)
     try {
-      const provider = new ethers.JsonRpcProvider(RPC_ENDPOINTS[0]);
+      const provider = new JsonRpcProvider(RPC_ENDPOINTS[0]);
       const currentBlock = await provider.getBlockNumber();
       const fromBlock = currentBlock - 5000; // Last ~3 hours of activity
 
@@ -176,7 +176,7 @@ export function Dashboard() {
       
       const txMap = new Map<string, any>();
       
-      const eventInterfaces = new ethers.Interface([
+      const eventInterfaces = new Interface([
         "event Minted(address indexed user, uint256 ethIn, uint256 gblinOut)",
         "event Burned(address indexed user, uint256 gblinIn)",
         "event Approval(address indexed owner, address indexed spender, uint256 value)",
@@ -274,6 +274,40 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
+      {/* OFFICIAL CONTRACT VERIFICATION */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 p-6 bg-amber-500/10 border border-amber-500/20 rounded-sm">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+            <ShieldAlert className="w-6 h-6 text-black" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-amber-500 uppercase tracking-tighter">Official Institutional Contract</h3>
+            <p className="text-xs text-zinc-400 font-mono select-all">{CONTRACT_ADDRESS}</p>
+            <p className="text-[10px] text-zinc-500 mt-1 uppercase tracking-widest font-bold">
+              Verified on Base Mainnet • The Golden Vault
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-3 w-full md:w-auto">
+          <button 
+            onClick={() => {
+              navigator.clipboard.writeText(CONTRACT_ADDRESS);
+            }}
+            className="flex-1 md:flex-none px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-sm text-[10px] font-bold uppercase tracking-widest transition-all"
+          >
+            Copy Address
+          </button>
+          <a 
+            href={`https://basescan.org/token/${CONTRACT_ADDRESS}`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex-1 md:flex-none px-4 py-2 bg-amber-500 text-black rounded-sm text-[10px] font-bold uppercase tracking-widest hover:bg-amber-400 transition-all text-center"
+          >
+            Verify on BaseScan
+          </a>
+        </div>
+      </div>
+
       {/* TOP METRICS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* PRICE POOL */}
