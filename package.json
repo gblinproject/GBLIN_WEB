@@ -10,6 +10,7 @@
     "clean": "next clean"
   },
   "dependencies": {
+    "@farcaster/frame-sdk": "^0.1.14",
     "@google/genai": "^1.17.0",
     "@hookform/resolvers": "^5.2.1",
     "autoprefixer": "^10.4.21",

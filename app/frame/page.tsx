@@ -1,5 +1,6 @@
 import { Metadata, ResolvingMetadata } from 'next';
 import { headers } from 'next/headers';
+import FarcasterInit from './FarcasterInit';
 
 const CONTRACT_ADDRESS = "0xc475851f9101A2AC48a84EcF869766A94D301FaA";
 
@@ -39,6 +40,7 @@ export async function generateMetadata(
 export default function FramePage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center p-4 font-mono">
+      <FarcasterInit />
       <div className="max-w-xl w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-8 text-center shadow-2xl">
         <h1 className="text-4xl font-bold text-emerald-500 mb-2 tracking-tighter">GBLIN FRAME</h1>
         <p className="text-zinc-400 mb-8 text-sm">Farcaster Integration Active</p>
