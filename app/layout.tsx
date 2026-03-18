@@ -1,5 +1,6 @@
 import { Inter, Cormorant_Garamond, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
+import { LanguageProvider } from '../context/LanguageContext'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -28,7 +29,9 @@ export default function RootLayout({
         <link rel="icon" href="https://raw.githubusercontent.com/rubbe89/gblin-assets/main/LOGO_GBLIN.png" />
       </head>
       <body className="bg-[#050505] text-white antialiased selection:bg-amber-500/30">
-        {children}
+        <LanguageProvider>
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   )

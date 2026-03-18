@@ -2,9 +2,21 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { Activity, Database, ShieldAlert, RefreshCw, DollarSign, ListOrdered, Wallet, BarChart3, CreditCard, ExternalLink } from "lucide-react";
+import { Activity, Database, ShieldAlert, RefreshCw, DollarSign, ListOrdered, Wallet, BarChart3, CreditCard, ExternalLink, TrendingUp } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { JsonRpcProvider, Interface } from "ethers";
+import { Interface } from "ethers";
+import { useLanguage } from "@/context/LanguageContext";
+import { it, es, zhCN, ja, fr, de } from "date-fns/locale";
+
+const locales = {
+  en: undefined,
+  it: it,
+  es: es,
+  zh: zhCN,
+  ja: ja,
+  fr: fr,
+  de: de
+};
 
 interface Transaction {
   hash: string;
@@ -17,6 +29,7 @@ interface Transaction {
 }
 
 export function Dashboard() {
+  const { t, language } = useLanguage();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -40,36 +53,46 @@ export function Dashboard() {
     const RPC_ENDPOINTS = [
       "https://mainnet.base.org",
       "https://base.llamarpc.com",
-      "https://base-mainnet.public.blastapi.io"
+      "https://base-mainnet.public.blastapi.io",
+      "https://base.meowrpc.com",
+      "https://base.drpc.org"
     ];
 
-    const rpcCall = async (data: string) => {
+    const rpcRequest = async (method: string, params: any[]) => {
       for (const endpoint of RPC_ENDPOINTS) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
         try {
           const res = await fetch(endpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               jsonrpc: "2.0",
-              method: "eth_call",
-              params: [{ to: CONTRACT_ADDRESS, data }, "latest"],
-              id: 1
+              method,
+              params,
+              id: Math.floor(Math.random() * 1000)
             }),
             signal: controller.signal
           });
           clearTimeout(timeoutId);
           if (!res.ok) continue;
           const json = await res.json();
-          if (json.result) return json.result;
+          if (json.result !== undefined) return json.result;
+          if (json.error) {
+            console.warn(`RPC error from ${endpoint} for ${method}:`, json.error);
+            continue;
+          }
         } catch (e) {
           clearTimeout(timeoutId);
-          console.warn(`RPC call failed for ${endpoint}`, e);
+          console.warn(`RPC call failed for ${endpoint} (${method})`, e);
           continue;
         }
       }
-      throw new Error("All RPC endpoints failed");
+      throw new Error(`All RPC endpoints failed for ${method}`);
+    };
+
+    const rpcCall = async (data: string) => {
+      return rpcRequest("eth_call", [{ to: CONTRACT_ADDRESS, data }, "latest"]);
     };
 
     if (IS_PRE_LAUNCH) {
@@ -162,17 +185,15 @@ export function Dashboard() {
 
     // 4. Fetch Transactions via RPC Logs (100% Live & Accurate)
     try {
-      const provider = new JsonRpcProvider(RPC_ENDPOINTS[0]);
-      const currentBlock = await provider.getBlockNumber();
-      const fromBlock = currentBlock - 5000; // Last ~3 hours of activity
+      const currentBlockHex = await rpcRequest("eth_blockNumber", []);
+      const currentBlock = Number(BigInt(currentBlockHex));
+      const fromBlock = "0x" + (currentBlock - 5000).toString(16);
 
-      const filter = {
+      const logs = await rpcRequest("eth_getLogs", [{
         address: CONTRACT_ADDRESS,
         fromBlock,
         toBlock: "latest"
-      };
-
-      const logs = await provider.getLogs(filter);
+      }]);
       
       const txMap = new Map<string, any>();
       
@@ -237,8 +258,10 @@ export function Dashboard() {
       
       await Promise.all(uniqueBlocks.map(async (bn) => {
         try {
-          const block = await provider.getBlock(bn);
-          if (block) blockData.set(bn, block.timestamp);
+          const block = await rpcRequest("eth_getBlockByNumber", ["0x" + bn.toString(16), false]);
+          if (block && block.timestamp) {
+            blockData.set(bn, Number(BigInt(block.timestamp)));
+          }
         } catch (e) {
           console.warn(`Failed to fetch block ${bn}`, e);
         }
@@ -281,10 +304,10 @@ export function Dashboard() {
             <ShieldAlert className="w-6 h-6 text-black" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-amber-500 uppercase tracking-tighter">Official Institutional Contract</h3>
+            <h3 className="text-lg font-bold text-amber-500 uppercase tracking-tighter">{t('dashboard.contractTitle')}</h3>
             <p className="text-xs text-zinc-400 font-mono select-all">{CONTRACT_ADDRESS}</p>
             <p className="text-[10px] text-zinc-500 mt-1 uppercase tracking-widest font-bold">
-              Verified on Base Mainnet • The Golden Vault
+              {t('dashboard.verifiedOnBase')}
             </p>
           </div>
         </div>
@@ -295,7 +318,7 @@ export function Dashboard() {
             }}
             className="flex-1 md:flex-none px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-sm text-[10px] font-bold uppercase tracking-widest transition-all"
           >
-            Copy Address
+            {t('dashboard.copyAddress')}
           </button>
           <a 
             href={`https://basescan.org/token/${CONTRACT_ADDRESS}`}
@@ -303,7 +326,7 @@ export function Dashboard() {
             rel="noreferrer"
             className="flex-1 md:flex-none px-4 py-2 bg-amber-500 text-black rounded-sm text-[10px] font-bold uppercase tracking-widest hover:bg-amber-400 transition-all text-center"
           >
-            Verify on BaseScan
+            {t('dashboard.verifyBasescan')}
           </a>
         </div>
       </div>
@@ -313,26 +336,26 @@ export function Dashboard() {
         <div className="bg-[#1A1A1A] border border-[#333] p-4 rounded-sm flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">BaseScan Metadata</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">{t('dashboard.metadata')}</span>
           </div>
           <div className="text-right">
-            <span className="block text-[10px] font-bold text-emerald-500 uppercase tracking-widest">In Review (Day 3)</span>
-            <span className="block text-[8px] text-zinc-500 uppercase tracking-tighter">Ticket #797143 Verified</span>
+            <span className="block text-[10px] font-bold text-emerald-500 uppercase tracking-widest">{t('dashboard.inReview')}</span>
+            <span className="block text-[8px] text-zinc-500 uppercase tracking-tighter">{t('dashboard.ticketVerified')}</span>
           </div>
         </div>
         <div className="bg-[#1A1A1A] border border-[#333] p-4 rounded-sm flex items-center justify-between opacity-50">
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-amber-500" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Coinbase Asset Hub</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">{t('dashboard.assetHub')}</span>
           </div>
-          <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">Pending BaseScan</span>
+          <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">{t('dashboard.pending')}</span>
         </div>
         <div className="bg-[#1A1A1A] border border-[#333] p-4 rounded-sm flex items-center justify-between opacity-50">
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-zinc-500" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">DexScreener Ads</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">{t('dashboard.dexAds')}</span>
           </div>
-          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Post-Verification</span>
+          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{t('dashboard.postVerification')}</span>
         </div>
       </div>
 
@@ -341,52 +364,80 @@ export function Dashboard() {
         {/* PRICE POOL */}
         <div className="bg-[#1A1A1A] border border-[#333] p-4 rounded-sm">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-zinc-500 uppercase tracking-widest">GBLIN Price Pool</span>
+            <span className="text-xs text-zinc-500 uppercase tracking-widest">{t('dashboard.pricePool')}</span>
             <DollarSign className="w-4 h-4 text-amber-500" />
           </div>
           <div className="text-2xl font-bold text-[#E4E3E0]">
             {formatCurrency(priceUsd)}
           </div>
-          <div className="text-xs text-zinc-500 mt-1">AERODROME SLIPSTREAM (1%)</div>
+          <div className="text-xs text-zinc-500 mt-1">{t('dashboard.slipstreamText')}</div>
         </div>
 
         {/* CONTRACT NAV */}
         <div className="bg-[#1A1A1A] border border-[#333] p-4 rounded-sm relative overflow-hidden">
           <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/10 rounded-bl-full -z-0"></div>
           <div className="flex items-center justify-between mb-2 relative z-10">
-            <span className="text-xs text-emerald-500 uppercase tracking-widest font-bold">GBLIN Contract NAV</span>
+            <span className="text-xs text-emerald-500 uppercase tracking-widest font-bold">{t('dashboard.navTitle')}</span>
             <ShieldAlert className="w-4 h-4 text-emerald-500" />
           </div>
           <div className="text-2xl font-bold text-emerald-400 relative z-10">
             {formatCurrency(contractNav)}
           </div>
-          <div className="text-xs text-emerald-500/70 mt-1 relative z-10">REAL ASSET BACKING</div>
+          <div className="text-xs text-emerald-500/70 mt-1 relative z-10">{t('dashboard.backing')}</div>
         </div>
         
         {/* VOLUME */}
         <div className="bg-[#1A1A1A] border border-[#333] p-4 rounded-sm">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-zinc-500 uppercase tracking-widest">24H Volume</span>
+            <span className="text-xs text-zinc-500 uppercase tracking-widest">{t('dashboard.volume')}</span>
             <BarChart3 className="w-4 h-4 text-amber-500" />
           </div>
           <div className="text-2xl font-bold text-[#E4E3E0]">
             {formatCurrency(volume24h)}
           </div>
-          <div className="text-xs text-zinc-500 mt-1">AERODROME SLIPSTREAM (1%)</div>
+          <div className="text-xs text-zinc-500 mt-1">{t('dashboard.slipstreamText')}</div>
         </div>
 
         {/* TOTAL SUPPLY */}
         <div className="bg-[#1A1A1A] border border-[#333] p-4 rounded-sm">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-zinc-500 uppercase tracking-widest">Total Supply</span>
+            <span className="text-xs text-zinc-500 uppercase tracking-widest">{t('dashboard.supply')}</span>
             <Database className="w-4 h-4 text-amber-500" />
           </div>
           <div className="text-2xl font-bold text-[#E4E3E0] font-mono">
             {totalSupply > 0 ? totalSupply.toFixed(4) : <span className="text-zinc-500 text-xl tracking-widest">SYNCING...</span>}
           </div>
-          <div className="text-xs text-zinc-500 mt-1">GBLIN IN EXISTENCE</div>
+          <div className="text-xs text-zinc-500 mt-1">{t('dashboard.existence')}</div>
         </div>
       </div>
+
+      {/* ARBITRAGE OPPORTUNITY INDICATOR */}
+      {priceUsd > 0 && contractNav > 0 && (
+        <div className="bg-[#1A1A1A] border border-amber-500/30 p-6 rounded-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-bl-full -z-0"></div>
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-amber-500" />
+                <h3 className="text-lg font-bold text-amber-500 uppercase tracking-tighter">{t('dashboard.arbitrageTitle')}</h3>
+              </div>
+              <p className="text-sm text-zinc-400 max-w-xl">
+                {t('dashboard.arbitrageText')}
+              </p>
+            </div>
+            <div className="text-right">
+              <div className="text-xs text-zinc-500 uppercase tracking-widest mb-1">{t('dashboard.currentStatus')}</div>
+              <div className={`text-3xl font-bold ${priceUsd < contractNav ? 'text-emerald-500' : 'text-amber-500'}`}>
+                {priceUsd < contractNav ? (
+                  <>{t('dashboard.undervalued')} <span className="text-sm opacity-60">({((1 - priceUsd/contractNav) * 100).toFixed(2)}% {t('dashboard.discount')})</span></>
+                ) : (
+                  <>{t('dashboard.fairValue')} <span className="text-sm opacity-60">({t('dashboard.marketAligned')})</span></>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* MAIN CONTENT AREA */}
       <div className="bg-[#1A1A1A] border border-[#333] p-6 rounded-sm">
@@ -402,7 +453,7 @@ export function Dashboard() {
                 referrerPolicy="no-referrer"
               />
             </div>
-            Live Network Telemetry
+            {t('dashboard.title')}
           </h3>
           <div className="flex items-center gap-4">
             <a 
@@ -411,10 +462,10 @@ export function Dashboard() {
               rel="noreferrer"
               className="text-xs border border-amber-500/30 text-amber-500 hover:bg-amber-500/10 px-3 py-1 rounded-sm flex items-center gap-2 transition-colors uppercase tracking-widest font-bold"
             >
-              Trade on Slipstream (1%)
+              {t('dashboard.trade')}
             </a>
             <div className="text-xs text-zinc-500 hidden md:block">
-              LAST SYNC: {lastUpdated ? lastUpdated.toLocaleTimeString() : '--:--:--'}
+              {t('dashboard.lastSync')}: {lastUpdated ? lastUpdated.toLocaleTimeString() : '--:--:--'}
             </div>
             <button 
               onClick={fetchData}
@@ -422,7 +473,7 @@ export function Dashboard() {
               className="text-xs bg-[#333] hover:bg-[#444] text-[#E4E3E0] px-3 py-1 rounded-sm flex items-center gap-2 transition-colors"
             >
               <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
-              SYNC
+              {t('dashboard.sync')}
             </button>
           </div>
         </div>
@@ -431,19 +482,19 @@ export function Dashboard() {
           <table className="w-full text-left text-sm">
             <thead className="text-xs text-zinc-500 uppercase bg-[#111]">
               <tr>
-                <th className="px-4 py-2 font-normal">Type</th>
-                <th className="px-4 py-2 font-normal">Time</th>
-                <th className="px-4 py-2 font-normal">Tx Hash</th>
-                <th className="px-4 py-2 font-normal">From</th>
-                <th className="px-4 py-2 font-normal">To</th>
-                <th className="px-4 py-2 font-normal text-right">Amount (GBLIN)</th>
+                <th className="px-4 py-2 font-normal">{t('dashboard.type')}</th>
+                <th className="px-4 py-2 font-normal">{t('dashboard.time')}</th>
+                <th className="px-4 py-2 font-normal">{t('dashboard.txHash')}</th>
+                <th className="px-4 py-2 font-normal">{t('dashboard.from')}</th>
+                <th className="px-4 py-2 font-normal">{t('dashboard.to')}</th>
+                <th className="px-4 py-2 font-normal text-right">{t('dashboard.amount')} (GBLIN)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#333]">
               {transactions.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-4 py-8 text-center text-zinc-500">
-                    {loading ? "Scanning blockchain..." : "No transactions found yet."}
+                    {loading ? t('dashboard.scanning') : t('dashboard.noTx')}
                   </td>
                 </tr>
               ) : (
@@ -454,29 +505,29 @@ export function Dashboard() {
                   const toLower = tx.to.toLowerCase();
                   
                   if (txType === "Minted") {
-                    txType = "Buy GBLIN";
+                    txType = t('dashboard.buy');
                     typeColor = "text-emerald-500";
                   } else if (txType === "Burned") {
-                    txType = "Sell GBLIN";
+                    txType = t('dashboard.sell');
                     typeColor = "text-red-500";
                   } else if (txType === "Approval") {
-                    txType = "Approve";
+                    txType = t('dashboard.approve');
                     typeColor = "text-blue-400";
                   } else if (txType === "Transfer") {
                     if (fromLower === "0x0000000000000000000000000000000000000000") {
-                      txType = "Mint / Buy";
+                      txType = t('dashboard.buy');
                       typeColor = "text-emerald-500";
                     } else if (toLower === "0x0000000000000000000000000000000000000000") {
-                      txType = "Burn / Sell";
+                      txType = t('dashboard.sell');
                       typeColor = "text-red-500";
                     } else if (fromLower.startsWith("0xdaec") && fromLower.endsWith("3c22")) {
-                      txType = "Buy (DEX)";
+                      txType = t('dashboard.buy') + " (" + t('dashboard.dex') + ")";
                       typeColor = "text-emerald-400";
                     } else if (toLower.startsWith("0xdaec") && toLower.endsWith("3c22")) {
-                      txType = "Sell (DEX)";
+                      txType = t('dashboard.sell') + " (" + t('dashboard.dex') + ")";
                       typeColor = "text-red-400";
                     } else {
-                      txType = "Transfer";
+                      txType = t('dashboard.transfer');
                       typeColor = "text-blue-400";
                     }
                   }
@@ -487,7 +538,10 @@ export function Dashboard() {
                         {txType}
                       </td>
                       <td className="px-4 py-3 text-zinc-400 whitespace-nowrap">
-                        {formatDistanceToNow(new Date(Number(tx.timeStamp) * 1000), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(Number(tx.timeStamp) * 1000), { 
+                          addSuffix: true,
+                          locale: locales[language as keyof typeof locales]
+                        })}
                       </td>
                       <td className="px-4 py-3">
                         <a href={`https://basescan.org/tx/${tx.hash}`} target="_blank" rel="noreferrer" className="text-amber-500 hover:underline font-mono text-xs">

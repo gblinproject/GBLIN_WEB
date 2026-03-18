@@ -16,14 +16,29 @@ import {
   ChevronDown,
   Activity,
   Twitter,
-  Mail
+  Mail,
+  Globe
 } from 'lucide-react'
 import { Dashboard } from '@/components/Dashboard'
+import { useLanguage } from '@/context/LanguageContext'
+import { Language } from '@/translations'
 
 const CONTRACT_ADDRESS = "0xc475851f9101A2AC48a84EcF869766A94D301FaA"
 
 export default function GBLINManifesto() {
   const [copied, setCopied] = React.useState(false)
+  const { t, language, setLanguage, isMounted } = useLanguage()
+  const [showLangSelector, setShowLangSelector] = React.useState(false)
+
+  const languages: { code: Language; name: string; flag: string }[] = [
+    { code: 'en', name: 'English', flag: '🇺🇸' },
+    { code: 'it', name: 'Italiano', flag: '🇮🇹' },
+    { code: 'es', name: 'Español', flag: '🇪🇸' },
+    { code: 'zh', name: '中文', flag: '🇨🇳' },
+    { code: 'ja', name: '日本語', flag: '🇯🇵' },
+    { code: 'fr', name: 'Français', flag: '🇫🇷' },
+    { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+  ]
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(CONTRACT_ADDRESS)
@@ -51,18 +66,50 @@ export default function GBLINManifesto() {
             <span className="font-serif text-3xl tracking-tighter font-bold bg-gradient-to-r from-amber-200 via-amber-500 to-amber-200 bg-clip-text text-transparent">GBLIN</span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium tracking-widest uppercase opacity-60">
-            <a href="#concept" className="hover:opacity-100 transition-opacity">Concept</a>
-            <a href="#vault" className="hover:opacity-100 transition-opacity">The Vault</a>
-            <a href="#dashboard" className="hover:opacity-100 transition-opacity">Telemetry</a>
+            <a href="#concept" className="hover:opacity-100 transition-opacity">{t('nav.manifesto')}</a>
+            <a href="#vault" className="hover:opacity-100 transition-opacity">{t('vault.title').split(' ').slice(-1)}</a>
+            <a href="#dashboard" className="hover:opacity-100 transition-opacity">{t('nav.dashboard')}</a>
             <a href="#security" className="hover:opacity-100 transition-opacity">Security</a>
           </div>
-          <a 
-            href={`https://basescan.org/token/${CONTRACT_ADDRESS}`}
-            target="_blank"
-            className="px-5 py-2 bg-white text-black text-xs font-bold uppercase tracking-widest rounded-full hover:bg-amber-400 transition-colors"
-          >
-            Basescan
-          </a>
+
+          <div className="flex items-center gap-4">
+            {/* Language Selector */}
+            <div className="relative">
+              <button 
+                onClick={() => setShowLangSelector(!showLangSelector)}
+                className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-all text-[10px] font-bold uppercase tracking-widest"
+              >
+                <Globe size={14} className="text-amber-500" />
+                {isMounted ? language : 'en'}
+              </button>
+              
+              {showLangSelector && (
+                <div className="absolute top-full right-0 mt-2 w-40 bg-[#111] border border-white/10 rounded-xl overflow-hidden shadow-2xl z-50">
+                  {languages.map((lang) => (
+                    <button
+                      key={lang.code}
+                      onClick={() => {
+                        setLanguage(lang.code)
+                        setShowLangSelector(false)
+                      }}
+                      className={`w-full px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 flex items-center justify-between transition-colors ${language === lang.code ? 'text-amber-500 bg-amber-500/5' : 'text-zinc-400'}`}
+                    >
+                      <span>{lang.flag} {lang.name}</span>
+                      {language === lang.code && <Check size={12} />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <a 
+              href={`https://basescan.org/token/${CONTRACT_ADDRESS}`}
+              target="_blank"
+              className="px-5 py-2 bg-white text-black text-xs font-bold uppercase tracking-widest rounded-full hover:bg-amber-400 transition-colors"
+            >
+              Basescan
+            </a>
+          </div>
         </div>
       </nav>
 
@@ -82,12 +129,11 @@ export default function GBLINManifesto() {
               Base Mainnet Protocol
             </span>
             <h1 className="font-serif text-7xl md:text-9xl leading-[0.9] mb-8 tracking-tighter">
-              The Autonomous <br />
-              <span className="italic text-amber-500">Central Bank</span>
+              {t('hero.title').split(' ').slice(0, -1).join(' ')} <br />
+              <span className="italic text-amber-500">{t('hero.title').split(' ').slice(-1)}</span>
             </h1>
             <p className="max-w-2xl mx-auto text-lg md:text-xl text-white/60 font-light leading-relaxed mb-12">
-              GBLIN is a self-governing liquidity index. No owners. No human intervention. 
-              Just pure mathematical rebalancing across the strongest assets on Base.
+              {t('hero.subtitle')}
             </p>
 
             <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-8">
@@ -96,7 +142,7 @@ export default function GBLINManifesto() {
                 target="_blank"
                 className="flex items-center justify-center gap-3 px-10 py-5 bg-amber-500 text-black text-xl font-bold rounded-2xl hover:bg-amber-400 hover:scale-105 transition-all shadow-[0_0_40px_rgba(245,158,11,0.4)]"
               >
-                BUY GBLIN <ArrowRight size={24} />
+                {t('dashboard.buy').toUpperCase()} <ArrowRight size={24} />
               </a>
               <a 
                 href="https://www.geckoterminal.com/base/pools/0xdaecc15bf028bc4d135260d044b87001dafb3c22"
@@ -129,20 +175,14 @@ export default function GBLINManifesto() {
           <div className="space-y-4">
             <span className="text-amber-500 text-xs font-mono uppercase tracking-[0.3em]">Institutional Vision</span>
             <h2 className="font-serif text-4xl md:text-5xl tracking-tight leading-tight">
-              The Protocol for <br />
-              <span className="italic">Wealth Preservation</span>
+              {t('manifesto.title').split(' ').slice(0, -1).join(' ')} <br />
+              <span className="italic">{t('manifesto.title').split(' ').slice(-1)}</span>
             </h2>
           </div>
           
           <div className="space-y-8 text-white/70 font-light leading-relaxed text-lg">
             <p>
-              In a market dominated by speculative volatility, GBLIN stands as a beacon of mathematical certainty. We engineered this protocol not as a gamble, but as a <strong>Shock Absorber</strong> for the Base ecosystem. 
-            </p>
-            <p>
-              By maintaining a dynamically balanced treasury of WETH, cbBTC, and USDC, GBLIN acts as an autonomous central bank. Our proprietary <strong>Algorithmic Crash Shield</strong> monitors market contractions in real-time, recalibrating the asset basket to protect the index from catastrophic drawdowns.
-            </p>
-            <p>
-              Transparency is our institutional mandate. The hardcoded <strong>0.1% protocol fee</strong> is strategically reinvested into the Vault without minting new tokens. This creates a permanent, non-inflationary upward pressure on the intrinsic value of every GBLIN in existence.
+              {t('manifesto.text')}
             </p>
           </div>
 
@@ -152,8 +192,8 @@ export default function GBLINManifesto() {
                 <ShieldCheck className="w-6 h-6 text-amber-500" />
               </div>
               <div>
-                <p className="text-sm font-bold uppercase tracking-widest">GBLIN Protocol</p>
-                <p className="text-xs text-white/40 uppercase tracking-widest">The Autonomous Central Bank</p>
+                <p className="text-sm font-bold uppercase tracking-widest">{t('common.protocol')}</p>
+                <p className="text-xs text-white/40 uppercase tracking-widest">{t('common.centralBank')}</p>
               </div>
             </div>
             <a 
@@ -161,7 +201,7 @@ export default function GBLINManifesto() {
               target="_blank"
               className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-amber-500 hover:text-amber-400 transition-colors"
             >
-              Verify Contract <ExternalLink size={14} />
+              {t('common.verifyContract')} <ExternalLink size={14} />
             </a>
           </div>
         </div>
@@ -173,18 +213,18 @@ export default function GBLINManifesto() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {[
               { 
-                title: 'Algorithmic Crash Shield', 
-                desc: 'A dynamic rebalancing engine that protects the treasury during market contractions, ensuring geometric survival.',
+                title: t('features.crashShield.title'), 
+                desc: t('features.crashShield.desc'),
                 icon: ShieldCheck 
               },
               { 
-                title: 'Autonomous Central Bank', 
-                desc: 'No owners. No human bias. The protocol recalibrates itself via decentralized arbitrageurs and MEV bots.',
+                title: t('features.centralBank.title'), 
+                desc: t('features.centralBank.desc'),
                 icon: Zap 
               },
               { 
-                title: 'Guaranteed Appreciation', 
-                desc: 'The 0.1% buy-fee fuels the Vault without minting new supply, mathematically increasing the intrinsic value per token.',
+                title: t('features.appreciation.title'), 
+                desc: t('features.appreciation.desc'),
                 icon: TrendingUp 
               }
             ].map((benefit, i) => (
@@ -206,18 +246,16 @@ export default function GBLINManifesto() {
           <div className="flex flex-col md:flex-row gap-20 items-center">
             <div className="flex-1 space-y-8">
               <h2 className="font-serif text-5xl md:text-6xl tracking-tight">
-                Inside the <br />
-                <span className="italic text-amber-500">Golden Vault</span>
+                {t('vault.title').split(' ').slice(0, -2).join(' ')} <br />
+                <span className="italic text-amber-500">{t('vault.title').split(' ').slice(-2).join(' ')}</span>
               </h2>
               <p className="text-white/60 leading-relaxed">
-                Every GBLIN token is backed by a proportional share of the protocol&apos;s treasury. 
-                The vault holds a diversified mix of Ethereum (WETH), Coinbase Bitcoin (cbBTC), and USD Coin (USDC).
-                As these underlying assets grow or the protocol collects fees, the intrinsic value of GBLIN increases.
+                {t('vault.desc')}
               </p>
               
               <div className="pt-4 border-t border-white/10">
                 <div className="flex flex-wrap gap-4">
-                  {['Ethereum (WETH)', 'Coinbase Bitcoin (cbBTC)', 'USD Coin (USDC)'].map((asset) => (
+                  {[t('vault.assets.weth'), t('vault.assets.cbbtc'), t('vault.assets.usdc')].map((asset) => (
                     <span key={asset} className="px-4 py-2 bg-white/5 rounded-full text-[10px] font-mono uppercase tracking-widest opacity-60">
                       {asset}
                     </span>
@@ -233,7 +271,7 @@ export default function GBLINManifesto() {
                 <div className="relative w-full h-full rounded-full overflow-hidden">
                   <Image 
                     src="https://raw.githubusercontent.com/rubbe89/gblin-assets/main/LOGO_GBLIN.png"
-                    alt="GBLIN Core"
+                    alt={t('vault.core')}
                     fill
                     unoptimized
                     className="object-cover scale-[1.02] hover:scale-[1.05] transition-transform duration-700"
@@ -253,13 +291,13 @@ export default function GBLINManifesto() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-12 items-center">
             <div className="flex-1 space-y-6">
-              <span className="text-amber-500 text-xs font-mono uppercase tracking-[0.3em]">MEV & Arbitrage</span>
+              <span className="text-amber-500 text-xs font-mono uppercase tracking-[0.3em]">{t('mev.title')}</span>
               <h2 className="font-serif text-4xl md:text-5xl tracking-tight">
-                Call the Function. <br />
-                <span className="italic text-amber-500">Get Paid.</span>
+                {t('mev.callTitle').split('.').slice(0, 1).join('.') + '.'} <br />
+                <span className="italic text-amber-500">{t('mev.callTitle').split('.').slice(1).join('.')}</span>
               </h2>
               <p className="text-white/60 leading-relaxed">
-                GBLIN relies on decentralized actors to maintain its peg and balance its treasury. The protocol features a public recalibration function that anyone can call. When the basket deviates from its target weights, bots and arbitrageurs are financially incentivized to trigger the rebalance, earning a direct payout for their service to the network.
+                {t('mev.desc')}
               </p>
               <div className="flex items-center gap-4 pt-4">
                 <a 
@@ -267,22 +305,22 @@ export default function GBLINManifesto() {
                   target="_blank"
                   className="px-6 py-3 bg-amber-500 text-black font-bold rounded-xl hover:bg-amber-400 transition-colors flex items-center gap-2"
                 >
-                  Interact on Basescan <ExternalLink size={16} />
+                  {t('mev.interact')} <ExternalLink size={16} />
                 </a>
               </div>
             </div>
             <div className="flex-1 w-full">
               <div className="bg-[#0a0a0a] border border-[#333] p-8 rounded-2xl relative overflow-hidden font-mono text-sm text-zinc-400">
-                <div className="text-emerald-500 mb-4">{`// The Autonomous Central Bank`}</div>
+                <div className="text-emerald-500 mb-4">{t('mev.codeComment')}</div>
                 <div className="space-y-2">
-                  <p><span className="text-blue-400">function</span> <span className="text-yellow-200">recalibrate</span>() <span className="text-blue-400">external</span> {'{'}</p>
-                  <p className="pl-4">require(needsRebalance(), <span className="text-green-400">&quot;Balanced&quot;</span>);</p>
-                  <p className="pl-4 text-zinc-500">{`// Rebalance WETH, cbBTC, USDC`}</p>
+                  <p><span className="text-blue-400">function</span> <span className="text-yellow-200">incentivizedRebalance</span>() <span className="text-blue-400">external</span> {'{'}</p>
+                  <p className="pl-4">require(needsRebalance(), <span className="text-green-400">&quot;{t('mev.codeBalanced')}&quot;</span>);</p>
+                  <p className="pl-4 text-zinc-500">{t('mev.codeRebalance')}</p>
                   <p className="pl-4">_executeSwaps();</p>
-                  <p className="pl-4 text-zinc-500">{`// Pay the caller for their service`}</p>
-                  <p>_rewardCaller(msg.sender);</p>
-                  <p>{'}'}</p>
+                  <p className="pl-4 text-zinc-500">{t('mev.codePay')}</p>
+                  <p className="pl-4">_rewardCaller(msg.sender);</p>
                 </div>
+                <p className="font-mono text-zinc-600 mt-4 text-[10px] uppercase tracking-widest">{t('mev.codeSurvival')}</p>
               </div>
             </div>
           </div>
@@ -294,13 +332,13 @@ export default function GBLINManifesto() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-12 items-center">
             <div className="flex-1 space-y-6">
-              <span className="text-amber-500 text-xs font-mono uppercase tracking-[0.3em]">Market Infrastructure</span>
+              <span className="text-amber-500 text-xs font-mono uppercase tracking-[0.3em]">{t('market.title')}</span>
               <h2 className="font-serif text-4xl md:text-5xl tracking-tight">
-                Concentrated <br />
-                <span className="italic text-amber-500">Slipstream Liquidity</span>
+                {t('market.subtitle').split(' ').slice(0, 1).join(' ')} <br />
+                <span className="italic text-amber-500">{t('market.subtitle').split(' ').slice(1).join(' ')}</span>
               </h2>
               <p className="text-white/60 leading-relaxed">
-                GBLIN utilizes Aerodrome&apos;s advanced Slipstream technology. By concentrating liquidity in a specific mathematical range (0.85 - 1.15 WETH), we ensure zero slippage and maximum capital efficiency. The 1% fee tier protects the protocol from predatory arbitrage while rewarding long-term liquidity providers.
+                {t('market.desc')}
               </p>
               <div className="flex items-center gap-4 pt-4">
                 <a 
@@ -308,7 +346,7 @@ export default function GBLINManifesto() {
                   target="_blank"
                   className="px-6 py-3 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex items-center gap-2"
                 >
-                  Trade on Aerodrome <ExternalLink size={16} />
+                  {t('market.trade')} <ExternalLink size={16} />
                 </a>
               </div>
             </div>
@@ -317,20 +355,20 @@ export default function GBLINManifesto() {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-bl-full -z-0"></div>
                 <div className="relative z-10 space-y-6">
                   <div className="flex justify-between items-center border-b border-[#333] pb-4">
-                    <span className="text-sm font-mono text-zinc-400">POOL TYPE</span>
-                    <span className="text-sm font-bold text-amber-500">SLIPSTREAM (CONCENTRATED)</span>
+                    <span className="text-sm font-mono text-zinc-400">{t('market.poolType')}</span>
+                    <span className="text-sm font-bold text-amber-500">{t('market.slipstream')}</span>
                   </div>
                   <div className="flex justify-between items-center border-b border-[#333] pb-4">
-                    <span className="text-sm font-mono text-zinc-400">FEE TIER</span>
+                    <span className="text-sm font-mono text-zinc-400">{t('market.feeTier')}</span>
                     <span className="text-sm font-bold text-white">1.0%</span>
                   </div>
                   <div className="flex justify-between items-center border-b border-[#333] pb-4">
-                    <span className="text-sm font-mono text-zinc-400">PRICE RANGE</span>
+                    <span className="text-sm font-mono text-zinc-400">{t('market.priceRange')}</span>
                     <span className="text-sm font-bold text-white">0.80 - 1.15 WETH</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-mono text-zinc-400">DEX</span>
-                    <span className="text-sm font-bold text-blue-400">AERODROME FINANCE</span>
+                    <span className="text-sm font-mono text-zinc-400">{t('market.dex')}</span>
+                    <span className="text-sm font-bold text-blue-400">{t('market.aerodrome')}</span>
                   </div>
                 </div>
               </div>
@@ -339,15 +377,16 @@ export default function GBLINManifesto() {
         </div>
       </section>
 
+
       {/* Dashboard Section */}
       <section id="dashboard" className="py-32 px-6 border-t border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="mb-12">
             <h2 className="font-serif text-5xl md:text-6xl tracking-tight mb-4">
-              Protocol <span className="italic text-amber-500">Telemetry</span>
+              Protocol <span className="italic text-amber-500">{t('nav.dashboard')}</span>
             </h2>
             <p className="text-white/60 max-w-2xl">
-              Real-time monitoring of the GBLIN autonomous engine. Transparency is the foundation of trust in the decentralized era.
+              {t('dashboard.arbitrageText')}
             </p>
           </div>
           <Dashboard />
@@ -414,9 +453,9 @@ export default function GBLINManifesto() {
 
           <div className="pt-12 border-t border-white/5">
             <div className="max-w-xl mx-auto p-8 bg-amber-500/5 border border-amber-500/20 rounded-2xl">
-              <h3 className="text-xl font-serif italic mb-4 text-amber-500">Join the Institutional Movement</h3>
+              <h3 className="text-xl font-serif italic mb-4 text-amber-500">{t('footer.join')}</h3>
               <p className="text-sm text-zinc-400 mb-6">
-                Follow our official channels for real-time telemetry updates, governance proposals, and strategic insights.
+                {t('footer.follow')}
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <a 
@@ -438,7 +477,7 @@ export default function GBLINManifesto() {
           </div>
 
           <p className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-30">
-            © 2026 GBLIN Protocol. Built for the Base Ecosystem.
+            {t('footer.rights')}
           </p>
         </div>
       </footer>
