@@ -1,5 +1,5 @@
 {
-  "name": "GBLIN | The Autonomous Central Bank",
-  "description": "An autonomous liquidity index on Base Mainnet. 6 Eggs, No Owner, Pure Math.",
+  "name": "GBLIN Protocol Dashboard",
+  "description": "A decentralized dashboard for the GBLIN protocol, featuring wallet connectivity, performance metrics, and rebalancing actions.",
   "requestFramePermissions": []
 }

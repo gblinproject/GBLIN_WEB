@@ -291,7 +291,7 @@ contract GBLINBaseFinal is ERC20, ERC20Permit, ReentrancyGuard {
 
                 if (minOut > 0) {
                     try this.safeSwap(WETH, a.token, a.poolFee, ethShare, minOut) {
-                        // Swap succeeded: WETH successfully converted to the target asset.
+                        // Swap succeeded: WETH successfully converted to the ideal asset.
                     } catch {
                         // Swap failed: Amount too small, slippage, or pool error.
                         // The ethShare simply remains in the contract as WETH (Fallback).
@@ -455,7 +455,7 @@ contract GBLINBaseFinal is ERC20, ERC20Permit, ReentrancyGuard {
 
     /**
      * @dev "Zap Out" to any ERC20 Token (e.g., USDT, USDC).
-     * Performs Pro-Rata redemption, swaps all assets to WETH, and then swaps WETH to the target token.
+     * Performs Pro-Rata redemption, swaps all assets to WETH, and then swaps WETH to the desired token.
      * This mimics the "Swap" functionality of MetaMask directly within the protocol.
      */
     function sellGBLINForToken(
@@ -531,7 +531,7 @@ contract GBLINBaseFinal is ERC20, ERC20Permit, ReentrancyGuard {
 
     /**
      * @dev Arbitrageurs call this to execute the Central Bank's monetary policy.
-     * It enforces STRICT mathematical limits. You can only swap up to the exact target weight.
+     * It enforces STRICT mathematical limits. You can only swap up to the exact ideal weight.
      * It allows TWO-WAY swaps: WETH -> Asset, OR Asset -> WETH.
      */
     function incentivizedRebalance(uint256 assetIndex, bool isWethToAsset, uint256 amountToSwap) external nonReentrant {
@@ -543,15 +543,15 @@ contract GBLINBaseFinal is ERC20, ERC20Permit, ReentrancyGuard {
 
         refreshWeights(); // Update the dynamic weights based on market conditions
 
-        uint256 targetAssetEthValue = (_calculateTotalEthValue() * a.dynamicWeight) / BPS_DENOMINATOR;
+        uint256 idealAssetEthValue = (_calculateTotalEthValue() * a.dynamicWeight) / BPS_DENOMINATOR;
         uint256 currentAssetEthValue = _convertToEth(a, IERC20(a.token).balanceOf(address(this)));
 
         uint256 out;
 
         if (isWethToAsset) {
             // WETH -> Asset (Asset is underweight)
-            if (currentAssetEthValue >= targetAssetEthValue) revert RebalanceNotNeeded();
-            uint256 maxEthToSwap = targetAssetEthValue - currentAssetEthValue;
+            if (currentAssetEthValue >= idealAssetEthValue) revert RebalanceNotNeeded();
+            uint256 maxEthToSwap = idealAssetEthValue - currentAssetEthValue;
             
             {
                 uint256 availableWeth = IWETH(WETH).balanceOf(address(this));
@@ -575,10 +575,10 @@ contract GBLINBaseFinal is ERC20, ERC20Permit, ReentrancyGuard {
 
         } else {
             // Asset -> WETH (Asset is overweight, or we need WETH for withdrawals)
-            if (currentAssetEthValue <= targetAssetEthValue) revert RebalanceNotNeeded();
+            if (currentAssetEthValue <= idealAssetEthValue) revert RebalanceNotNeeded();
             
             {
-                uint256 maxAssetToSwap = _convertEthToAsset(a, currentAssetEthValue - targetAssetEthValue);
+                uint256 maxAssetToSwap = _convertEthToAsset(a, currentAssetEthValue - idealAssetEthValue);
                 if (amountToSwap > maxAssetToSwap) amountToSwap = maxAssetToSwap; // Enforce Limit
             }
 

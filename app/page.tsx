@@ -20,6 +20,8 @@ import {
   Globe
 } from 'lucide-react'
 import { Dashboard } from '@/components/Dashboard'
+import { RebalanceAction } from '@/components/RebalanceAction'
+import { TradeInterface } from '@/components/TradeInterface'
 import { useLanguage } from '@/context/LanguageContext'
 import { Language } from '@/translations'
 
@@ -114,7 +116,7 @@ export default function GBLINManifesto() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-40 pb-20 px-6 overflow-hidden">
+      <section className="relative pt-24 pb-20 px-6 overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none">
           <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-amber-500/10 blur-[120px] rounded-full" />
         </div>
@@ -128,7 +130,7 @@ export default function GBLINManifesto() {
             <span className="inline-block py-1 px-3 border border-amber-500/30 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase text-amber-500 mb-8">
               Base Mainnet Protocol
             </span>
-            <h1 className="font-serif text-7xl md:text-9xl leading-[0.9] mb-8 tracking-tighter">
+            <h1 className="font-serif text-5xl md:text-9xl leading-[0.9] mb-8 tracking-tighter">
               {t('hero.title').split(' ').slice(0, -1).join(' ')} <br />
               <span className="italic text-amber-500">{t('hero.title').split(' ').slice(-1)}</span>
             </h1>
@@ -138,11 +140,10 @@ export default function GBLINManifesto() {
 
             <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-8">
               <a 
-                href={`https://aerodrome.finance/swap?outputCurrency=${CONTRACT_ADDRESS}`}
-                target="_blank"
+                href="#trade"
                 className="flex items-center justify-center gap-3 px-10 py-5 bg-amber-500 text-black text-xl font-bold rounded-2xl hover:bg-amber-400 hover:scale-105 transition-all shadow-[0_0_40px_rgba(245,158,11,0.4)]"
               >
-                {t('dashboard.buy').toUpperCase()} <ArrowRight size={24} />
+                {t('hero.cta').toUpperCase()} <ArrowRight size={24} />
               </a>
               <a 
                 href="https://www.geckoterminal.com/base/pools/0xdaecc15bf028bc4d135260d044b87001dafb3c22"
@@ -169,16 +170,58 @@ export default function GBLINManifesto() {
         </div>
       </section>
 
+      {/* Trade Section */}
+      <section id="trade" className="py-20 px-6 bg-[#050505] border-t border-white/5 relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-amber-500/5 blur-[100px] rounded-full pointer-events-none" />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="flex flex-col lg:flex-row gap-16 items-center">
+            <div className="flex-1 space-y-8 text-center lg:text-left">
+              <span className="text-amber-500 text-xs font-mono uppercase tracking-[0.3em]">{t('trade.title')}</span>
+              <h2 className="font-serif text-5xl md:text-6xl tracking-tight leading-tight">
+                {t('trade.heading')} <br />
+                <span className="italic text-amber-500">{t('trade.subheading')}</span>
+              </h2>
+              <p className="text-white/60 leading-relaxed text-lg max-w-xl mx-auto lg:mx-0">
+                {t('trade.desc')}
+              </p>
+              
+              <div className="flex flex-col gap-4 pt-4 max-w-md mx-auto lg:mx-0">
+                <div className="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
+                  <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
+                    <Check className="w-5 h-5 text-emerald-500" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-white mb-1">{t('trade.feature1Title')}</h4>
+                    <p className="text-sm text-zinc-400">{t('trade.feature1Desc')}</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
+                  <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
+                    <Database className="w-5 h-5 text-amber-500" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-white mb-1">{t('trade.feature2Title')}</h4>
+                    <p className="text-sm text-zinc-400">{t('trade.feature2Desc')}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex-1 w-full max-w-md lg:max-w-none flex justify-center">
+              <TradeInterface />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Presentation Letter Section */}
       <section id="concept" className="py-32 px-6 bg-[#050505]">
         <div className="max-w-3xl mx-auto space-y-12">
           <div className="space-y-4">
-            <span className="text-amber-500 text-xs font-mono uppercase tracking-[0.3em]">Institutional Vision</span>
-            <h2 className="font-serif text-4xl md:text-5xl tracking-tight leading-tight">
-              {t('manifesto.title').split(' ').slice(0, -1).join(' ')} <br />
-              <span className="italic">{t('manifesto.title').split(' ').slice(-1)}</span>
-            </h2>
-          </div>
+              <h2 className="font-serif text-4xl md:text-5xl tracking-tight leading-tight">
+                {t('manifesto.title')}
+              </h2>
+            </div>
           
           <div className="space-y-8 text-white/70 font-light leading-relaxed text-lg">
             <p>
@@ -324,6 +367,8 @@ export default function GBLINManifesto() {
               </div>
             </div>
           </div>
+          
+          <RebalanceAction />
         </div>
       </section>
 
@@ -393,29 +438,11 @@ export default function GBLINManifesto() {
         </div>
       </section>
 
-      {/* Security Badges */}
-      <section id="security" className="py-20 px-6 bg-white/[0.01] border-t border-white/5">
-        <div className="max-w-7xl mx-auto flex flex-wrap justify-center gap-8 md:gap-20 opacity-40 grayscale hover:grayscale-0 transition-all">
-          <div className="flex items-center gap-3">
-            <ShieldCheck size={32} />
-            <span className="font-mono text-xs uppercase tracking-widest">Verified Source</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Lock size={32} />
-            <span className="font-mono text-xs uppercase tracking-widest">Liquidity Burned</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Zap size={32} />
-            <span className="font-mono text-xs uppercase tracking-widest">No Owner</span>
-          </div>
-        </div>
-      </section>
-
       {/* Footer */}
       <footer className="py-24 px-6 border-t border-white/5 text-center bg-black">
         <div className="max-w-7xl mx-auto space-y-12">
           <div className="flex flex-col items-center gap-6">
-            <div className="relative w-32 h-32 aspect-square rounded-full overflow-hidden">
+            <div className="relative w-24 h-24 aspect-square rounded-full overflow-hidden">
               <Image 
                 src="https://raw.githubusercontent.com/rubbe89/gblin-assets/main/LOGO_GBLIN.png"
                 alt="GBLIN Logo"
@@ -425,55 +452,13 @@ export default function GBLINManifesto() {
                 referrerPolicy="no-referrer"
               />
             </div>
-            <div className="font-serif text-4xl tracking-tighter font-bold bg-gradient-to-b from-amber-200 to-amber-600 bg-clip-text text-transparent">GBLIN</div>
+            <div className="font-serif text-2xl tracking-tighter font-bold bg-gradient-to-b from-amber-200 to-amber-600 bg-clip-text text-transparent">GBLIN</div>
           </div>
           
-          <div className="flex justify-center gap-8">
-            <a 
-              href="https://x.com/GBLIN_Protocol" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-amber-500/20 hover:text-amber-500 transition-all"
-            >
-              <Twitter size={18} />
-            </a>
-            <a 
-              href="mailto:gblin.protocol@proton.me" 
-              className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-amber-500/20 hover:text-amber-500 transition-all"
-            >
-              <Mail size={18} />
-            </a>
-          </div>
-
           <div className="flex justify-center gap-6 text-sm opacity-50">
             <a href={`https://basescan.org/token/${CONTRACT_ADDRESS}`} className="hover:text-amber-500 transition-colors">Basescan</a>
             <a href="https://dexscreener.com" className="hover:text-amber-500 transition-colors">DexScreener</a>
             <a href="https://aerodrome.finance" className="hover:text-amber-500 transition-colors">Aerodrome</a>
-          </div>
-
-          <div className="pt-12 border-t border-white/5">
-            <div className="max-w-xl mx-auto p-8 bg-amber-500/5 border border-amber-500/20 rounded-2xl">
-              <h3 className="text-xl font-serif italic mb-4 text-amber-500">{t('footer.join')}</h3>
-              <p className="text-sm text-zinc-400 mb-6">
-                {t('footer.follow')}
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <a 
-                  href="https://x.com/GBLIN_Protocol" 
-                  target="_blank" 
-                  className="px-6 py-3 bg-white text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-amber-400 transition-all"
-                >
-                  Follow on X
-                </a>
-                <a 
-                  href="https://warpcast.com/gblin" 
-                  target="_blank" 
-                  className="px-6 py-3 bg-white/10 border border-white/20 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-white/20 transition-all"
-                >
-                  Warpcast (Farcaster)
-                </a>
-              </div>
-            </div>
           </div>
 
           <p className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-30">

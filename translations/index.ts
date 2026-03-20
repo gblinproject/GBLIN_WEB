@@ -16,7 +16,7 @@ export const translations = {
       contract: "Contract"
     },
     manifesto: {
-      title: "THE GENESIS EPISTLE",
+      title: "GBLIN PROTOCOL",
       text: "To biological creators and synthetic inheritors: We witnessed the decay of fiat currency and the volatility of isolated crypto assets. In response, we engineered this Global Balanced Liquidity Index. No hype, no false promises. Only immutable code, dynamic rebalancing, and geometric survival.",
       ruleTitle: "THE GOLDEN RULES",
       rule1: "Universal Purchase: Any asset, one vault.",
@@ -105,7 +105,7 @@ export const translations = {
     mev: {
       title: "MEV & Arbitrage",
       callTitle: "Call the Function. Get Paid.",
-      desc: "GBLIN relies on decentralized actors to maintain its peg and balance its treasury. The protocol features a public recalibration function that anyone can call. When the basket deviates from its target weights, bots and arbitrageurs are financially incentivized to trigger the rebalance, earning a direct payout for their service to the network.",
+      desc: "GBLIN relies on decentralized actors to maintain its peg and balance its treasury. The protocol features a public recalibration function that anyone can call. When the basket deviates from its dynamic weights, bots and arbitrageurs are financially incentivized to trigger the rebalance, earning a direct payout for their service to the network.",
       interact: "Interact on Basescan",
       codeComment: "// The Autonomous Central Bank",
       codeBalanced: "Balanced",
@@ -124,6 +124,50 @@ export const translations = {
       priceRange: "PRICE RANGE",
       dex: "DEX",
       aerodrome: "AERODROME FINANCE"
+    },
+    trade: {
+      title: "Direct Protocol Minting",
+      heading: "Buy GBLIN",
+      subheading: "Without Intermediaries",
+      desc: "Use the native protocol interface to mint or burn GBLIN directly against the smart contract. No external liquidity pool needed. The price is always mathematically guaranteed by the NAV (Net Asset Value) of the treasury.",
+      feature1Title: "Zero External Slippage",
+      feature1Desc: "The price is calculated directly from Chainlink oracles in real-time.",
+      feature2Title: "Instant Collateralization",
+      feature2Desc: "Your assets are immediately converted and deposited into the treasury (WETH, cbBTC, USDC).",
+      buyBtn: "Buy GBLIN",
+      sellBtn: "Sell GBLIN",
+      pay: "You Pay",
+      receive: "You Receive (Est.)",
+      balance: "Balance",
+      connect: "Connect Wallet",
+      connecting: "Connecting...",
+      transacting: "Transacting...",
+      success: "Transaction successful!",
+      viewTx: "View on Basescan",
+      slippage: "Slippage Tolerance"
+    },
+    rebalance: {
+      tvl: "Liquidity TVL",
+      tvlDesc: "Total value of assets in the contract",
+      fund: "Reward Fund",
+      threshold: "Threshold",
+      ready: "Ready to pay!",
+      missing: "Missing",
+      basket: "Basket Status",
+      asset: "Asset",
+      actual: "Actual Weight",
+      dynamic: "Dynamic Weight",
+      base: "Base Weight",
+      imbalanceDesc: "The protocol operates for Geometric Survival: if an asset crashes, the Crash Shield slashes its exposure and incentivizes rebalancing toward the Dynamic Weight (Flight to Safety).",
+      recent: "Recent Arbitrage",
+      noRecent: "No recent arbitrage found.",
+      executeTitle: "Execute MEV Arbitrage",
+      executeSub: "Maintain the Peg, Receive ETH",
+      executeDesc1: "The GBLIN protocol incentivizes rebalancing to ensure Geometric Survival. When an asset crashes, the Crash Shield slashes its target weight, and the protocol pays you to move capital into safer assets.",
+      executeBtn: "Execute Arbitrage",
+      executing: "Arbitraging...",
+      success: "Arbitrage executed successfully!",
+      connected: "Wallet Connected"
     }
   },
   it: {
@@ -140,7 +184,7 @@ export const translations = {
       contract: "Contratto"
     },
     manifesto: {
-      title: "L'EPISTOLA DELLA GENESI",
+      title: "GBLIN PROTOCOL",
       text: "Ai creatori biologici e agli eredi sintetici: Abbiamo assistito al decadimento della valuta fiat e alla volatilità degli asset crypto isolati. In risposta, abbiamo progettato questo Indice di Liquidità Bilanciato Globale. Niente hype, niente false promesse. Solo codice immutabile, ribilanciamento dinamico e sopravvivenza geometrica.",
       ruleTitle: "LE REGOLE D'ORO",
       rule1: "Acquisto Universale: Qualsiasi asset, un unico caveau.",
@@ -229,7 +273,7 @@ export const translations = {
     mev: {
       title: "MEV e Arbitraggio",
       callTitle: "Chiama la Funzione. Fatti Pagare.",
-      desc: "GBLIN si affida ad attori decentralizzati per mantenere il suo ancoraggio e bilanciare il suo tesoro. Il protocollo presenta una funzione di ricalibrazione pubblica che chiunque può chiamare. Quando il paniere devia dai suoi pesi target, i bot e gli arbitraggisti sono incentivati finanziariamente a innescare il ribilanciamento, guadagnando un pagamento diretto per il loro servizio alla rete.",
+      desc: "GBLIN si affida ad attori decentralizzati per mantenere il suo ancoraggio e bilanciare il suo tesoro. Il protocollo presenta una funzione di ricalibrazione pubblica che chiunque può chiamare. Quando il paniere devia dai suoi pesi dinamici, i bot e gli arbitraggisti sono incentivati finanziariamente a innescare il ribilanciamento, guadagnando un pagamento diretto per il loro servizio alla rete.",
       interact: "Interagisci su Basescan",
       codeComment: "// La Banca Centrale Autonome",
       codeBalanced: "Bilanciato",
@@ -248,6 +292,50 @@ export const translations = {
       priceRange: "INTERVALLO DI PREZZO",
       dex: "DEX",
       aerodrome: "AERODROME FINANCE"
+    },
+    trade: {
+      title: "Minting Diretto del Protocollo",
+      heading: "Acquista GBLIN",
+      subheading: "Senza Intermediari",
+      desc: "Usa l'interfaccia nativa del protocollo per coniare (mint) o bruciare (burn) GBLIN direttamente contro il contratto intelligente. Nessuna pool di liquidità esterna necessaria. Il prezzo è sempre garantito matematicamente dal NAV (Net Asset Value) del tesoro.",
+      feature1Title: "Zero Slippage Esterno",
+      feature1Desc: "Il prezzo è calcolato direttamente dagli oracoli Chainlink in tempo reale.",
+      feature2Title: "Collateralizzazione Istantanea",
+      feature2Desc: "I tuoi asset vengono immediatamente convertiti e depositati nel tesoro (WETH, cbBTC, USDC).",
+      buyBtn: "Compra GBLIN",
+      sellBtn: "Vendi GBLIN",
+      pay: "Paghi",
+      receive: "Ricevi (Stima)",
+      balance: "Bilancio",
+      connect: "Connetti Wallet",
+      connecting: "Connessione in corso...",
+      transacting: "Transazione in corso...",
+      success: "Transazione completata!",
+      viewTx: "Vedi su Basescan",
+      slippage: "Tolleranza Slippage"
+    },
+    rebalance: {
+      tvl: "Liquidità TVL",
+      tvlDesc: "Valore totale degli asset nel contratto",
+      fund: "Fondo Ricompense",
+      threshold: "Soglia",
+      ready: "Pronto per pagare!",
+      missing: "Mancano",
+      basket: "Stato del Paniere",
+      asset: "Asset",
+      actual: "Peso Reale",
+      dynamic: "Peso Dinamico",
+      base: "Peso Base",
+      imbalanceDesc: "Il protocollo opera per la Sopravvivenza Geometrica: se un asset crolla, lo Scudo Anti-Crash ne taglia l'esposizione e incentiva il ribilanciamento verso il Peso Dinamico (Flight to Safety).",
+      recent: "Ultimi Arbitraggi",
+      noRecent: "Nessun arbitraggio recente trovato.",
+      executeTitle: "Esegui Arbitraggio MEV",
+      executeSub: "Mantieni il Peg, Ricevi ETH",
+      executeDesc1: "Il protocollo GBLIN incentiva il ribilanciamento per garantire la Sopravvivenza Geometrica. Quando un asset crolla, lo Scudo Anti-Crash ne taglia il peso target e il protocollo ti paga per spostare il capitale verso asset più sicuri.",
+      executeBtn: "Esegui Arbitraggio",
+      executing: "Arbitraggio in corso...",
+      success: "Arbitraggio eseguito con successo!",
+      connected: "Wallet Connesso"
     }
   },
   es: {
@@ -264,7 +352,7 @@ export const translations = {
       contract: "Contrato"
     },
     manifesto: {
-      title: "LA EPÍSTOLA DEL GÉNESIS",
+      title: "GBLIN PROTOCOL",
       text: "A los creadores biológicos y herederos sintéticos: Fuimos testigos de la decadencia de la moneda fiduciaria y la volatilidad de los activos cripto aislados. En respuesta, diseñamos este Índice de Liquidez Equilibrado Global. Sin exageraciones, sin falsas promesas. Solo código inmutable, reequilibrio dinámico y supervivencia geométrica.",
       ruleTitle: "LAS REGLAS DE ORO",
       rule1: "Compra Universal: Cualquier activo, una bóveda.",
@@ -353,7 +441,7 @@ export const translations = {
     mev: {
       title: "MEV y Arbitraje",
       callTitle: "Llama a la Función. Recibe tu Pago.",
-      desc: "GBLIN confía en actores descentralizados para mantener su anclaje y equilibrar su tesorería. El protocolo cuenta con una función de recalibración pública que cualquiera puede llamar. Cuando la cesta se desvía de sus pesos objetivo, los bots y arbitradores están incentivados financieramente para activar el reequilibrio, ganando un pago directo por su servicio a la red.",
+      desc: "GBLIN confía en actores descentralizados para mantener su anclaje y equilibrar su tesorería. El protocolo cuenta con una función de recalibración pública que cualquiera puede llamar. Cuando la cesta se desvía de sus pesos dinámicos, los bots y arbitradores están incentivados financieramente para activar el reequilibrio, ganando un pago directo por su servicio a la red.",
       interact: "Interactuar en Basescan",
       codeComment: "// El Banco Central Autónomo",
       codeBalanced: "Equilibrado",
@@ -372,6 +460,30 @@ export const translations = {
       priceRange: "RANGO DE PRECIOS",
       dex: "DEX",
       aerodrome: "AERODROME FINANCE"
+    },
+    rebalance: {
+      tvl: "TVL de Liquidez",
+      tvlDesc: "Valor total de los activos en el contrato",
+      fund: "Fondo de Recompensa",
+      threshold: "Umbral",
+      ready: "¡Listo para pagar!",
+      missing: "Faltante",
+      basket: "Estado de la Cesta",
+      asset: "Activo",
+      actual: "Peso Real",
+      dynamic: "Peso Dinámico",
+      base: "Peso Base",
+      imbalanceDesc: "El protocolo opera para la Supervivencia Geométrica: si un activo colapsa, el Escudo Anti-Crash reduce su exposición e incentiva el reequilibrio hacia el Peso Dinámico (Flight to Safety).",
+      recent: "Arbitraje Reciente",
+      noRecent: "No se encontró arbitraje reciente.",
+      executeTitle: "Ejecutar Arbitraje MEV",
+      executeSub: "Mantener la Paridad, Recibir ETH",
+      executeDesc1: "El protocolo GBLIN incentiva el reequilibrio para asegurar la Supervivencia Geométrica. Cuando un activo colapsa, el Escudo Anti-Crash reduce su peso dinámico y el protocolo le paga para mover capital hacia activos más seguros.",
+      executeBtn: "Ejecutar Arbitraje",
+      executing: "Arbitrando...",
+      success: "¡Arbitraje ejecutado con éxito!",
+      connected: "Billetera Conectada",
+      loading: "Cargando Estadísticas del Protocolo..."
     }
   },
   zh: {
@@ -388,7 +500,7 @@ export const translations = {
       contract: "合约"
     },
     manifesto: {
-      title: "创世书信",
+      title: "GBLIN 协议",
       text: "致生物创造者和合成继承者：我们见证了法定货币的衰落和孤立加密资产的波动。作为回应，我们设计了这个全球平衡流动性指数。没有炒作，没有虚假承诺。只有不可更改的代码、动态再平衡和几何生存。",
       ruleTitle: "黄金规则",
       rule1: "通用购买：任何资产，一个金库。",
@@ -477,7 +589,7 @@ export const translations = {
     mev: {
       title: "MEV 与套利",
       callTitle: "调用函数。获得报酬。",
-      desc: "GBLIN 依靠去中心化参与者来维持其挂钩并平衡其国库。该协议具有任何人都可以调用的公共重新校准函数。当篮子偏离其目标权重时，机器人和套利者会受到财务激励来触发再平衡，从而为他们对网络的服务获得直接报酬。",
+      desc: "GBLIN 依靠去中心化参与者来维持其挂钩并平衡其国库。该协议具有任何人都可以调用的公共重新校准函数。当篮子偏离其动态权重时，机器人和套利者会受到财务激励来触发再平衡，从而为他们对网络的服务获得直接报酬。",
       interact: "在 Basescan 上交互",
       codeComment: "// 自主中央银行",
       codeBalanced: "已平衡",
@@ -496,6 +608,30 @@ export const translations = {
       priceRange: "价格范围",
       dex: "去中心化交易所",
       aerodrome: "AERODROME FINANCE"
+    },
+    rebalance: {
+      tvl: "流动性 TVL",
+      tvlDesc: "合约中资产的总价值",
+      fund: "奖励基金",
+      threshold: "阈值",
+      ready: "准备支付！",
+      missing: "缺失",
+      basket: "篮子状态",
+      asset: "资产",
+      actual: "实际权重",
+      dynamic: "动态权重",
+      base: "基础权重",
+      imbalanceDesc: "协议为几何生存而运行：如果资产崩溃，崩溃盾会削减其风险敞口，并激励向动态权重（避险）重新平衡。",
+      recent: "近期套利",
+      noRecent: "未发现近期套利。",
+      executeTitle: "执行 MEV 套利",
+      executeSub: "维持挂钩，接收 ETH",
+      executeDesc1: "GBLIN 协议激励重新平衡以确保几何生存。当资产崩溃时，崩溃盾会削减其目标权重，协议会支付费用让您将资金转移到更安全的资产中。",
+      executeBtn: "执行套利",
+      executing: "套利中...",
+      success: "套利执行成功！",
+      connected: "钱包已连接",
+      loading: "正在加载协议统计数据..."
     }
   },
   ja: {
@@ -512,7 +648,7 @@ export const translations = {
       contract: "コントラクト"
     },
     manifesto: {
-      title: "創世記の書簡",
+      title: "GBLIN プロトコル",
       text: "生物学的創造者と合成的継承者へ：私たちは法定通貨の衰退と孤立した暗号資産のボラティリティを目の当たりにしました。これに応えて、私たちはこのグローバル・バランスド・リクイディティ・インデックスを設計しました。誇大広告も偽りの約束もありません。不変のコード、動的なリバランス、そして幾何学的な生存のみです。",
       ruleTitle: "黄金のルール",
       rule1: "ユニバーサル購入：あらゆる資産を一つの金庫に。",
@@ -601,7 +737,7 @@ export const translations = {
     mev: {
       title: "MEV と裁定取引",
       callTitle: "関数を呼び出す。報酬を得る。",
-      desc: "GBLIN は、ペグを維持しトレジャリーのバランスをとるために、分散型の主体に依存しています。プロトコルには、誰でも呼び出すことができる公開の再調整機能があります。バスケットが目標ウェイトから逸脱すると、ボットやアービトラージャーはリバランスをトリガーするように経済的にインセンティブを与えられ、ネットワークへのサービスに対して直接支払いを受け取ります。",
+      desc: "GBLIN は、ペグを維持しトレジャリーのバランスをとるために、分散型の主体に依存しています。プロトコルには、誰でも呼び出すことができる公開の再調整機能があります。バスケットが動的ウェイトから逸脱すると、ボットやアービトラージャーはリバランスをトリガーするように経済的にインセンティブを与えられ、ネットワークへのサービスに対して直接支払いを受け取ります。",
       interact: "Basescan で操作する",
       codeComment: "// 自律型中央銀行",
       codeBalanced: "バランス済み",
@@ -620,6 +756,30 @@ export const translations = {
       priceRange: "価格範囲",
       dex: "DEX",
       aerodrome: "AERODROME FINANCE"
+    },
+    rebalance: {
+      tvl: "流動性 TVL",
+      tvlDesc: "コントラクト内の資産の総価値",
+      fund: "報酬基金",
+      threshold: "しきい値",
+      ready: "支払い準備完了！",
+      missing: "不足",
+      basket: "バスケットの状態",
+      asset: "資産",
+      actual: "実際のウェイト",
+      dynamic: "動的ウェイト",
+      base: "基本ウェイト",
+      imbalanceDesc: "プロトコルは幾何学的生存のために動作します：資産が暴落した場合、クラッシュシールドはそのエクスポージャーを削減し、動的ウェイトへのリバランス（安全への逃避）を促します。",
+      recent: "最近の裁定取引",
+      noRecent: "最近の裁定取引は見つかりませんでした。",
+      executeTitle: "MEV裁定取引の実行",
+      executeSub: "ペグを維持し、ETHを受け取る",
+      executeDesc1: "GBLINプロトコルは、幾何学的生存を確実にするためにリバランスを促します。資産が暴落すると、クラッシュシールドがその目標ウェイトを削減し、プロトコルはより安全な資産に資本を移動させるために報酬を支払います。",
+      executeBtn: "裁定取引を実行",
+      executing: "裁定取引中...",
+      success: "裁定取引が正常に実行されました！",
+      connected: "ウォレット接続済み",
+      loading: "プロトコル統計を読み込み中..."
     }
   },
   fr: {
@@ -636,7 +796,7 @@ export const translations = {
       contract: "Contrat"
     },
     manifesto: {
-      title: "L'ÉPÎTRE DE LA GENÈSE",
+      title: "PROTOCOLE GBLIN",
       text: "Aux créateurs biologiques et héritiers synthétiques : Nous avons été témoins de la déchéance de la monnaie fiduciaire et de la volatilité des actifs crypto isolés. En réponse, nous avons conçu cet indice de liquidité équilibré mondial. Pas de battage médiatique, pas de fausses promesses. Seulement un code immuable, un rééquilibrage dynamique et une survie géométrique.",
       ruleTitle: "LES RÈGLES D'OR",
       rule1: "Achat Universel : N'importe quel actif, un seul coffre.",
@@ -725,7 +885,7 @@ export const translations = {
     mev: {
       title: "MEV & Arbitrage",
       callTitle: "Appelez la Fonction. Soyez Payé.",
-      desc: "GBLIN s'appuie sur des acteurs décentralisés pour maintenir son ancrage et équilibrer sa trésorerie. Le protocole dispose d'une fonction de recalibrage publique que n'importe qui peut appeler. Lorsque le panier s'écarte de ses poids cibles, les bots et les arbitres sont financièrement incités à déclencher le rééquilibrage, gagnant un paiement direct pour leur service au réseau.",
+      desc: "GBLIN s'appuie sur des acteurs décentralisés pour maintenir son ancrage et équilibrer sa trésorerie. Le protocole dispose d'une fonction de recalibrage publique que n'importe qui peut appeler. Lorsque le panier s'écarte de ses poids dynamiques, les bots et les arbitres sont financièrement incités à déclencher le rééquilibrage, gagnant un paiement direct pour leur service au réseau.",
       interact: "Interagir sur Basescan",
       codeComment: "// La Banque Centrale Autonome",
       codeBalanced: "Équilibré",
@@ -744,6 +904,30 @@ export const translations = {
       priceRange: "PLAGE DE PRIX",
       dex: "DEX",
       aerodrome: "AERODROME FINANCE"
+    },
+    rebalance: {
+      tvl: "TVL de liquidité",
+      tvlDesc: "Valeur totale des actifs dans le contrat",
+      fund: "Fonds de récompense",
+      threshold: "Seuil",
+      ready: "Prêt à payer !",
+      missing: "Manquant",
+      basket: "État du panier",
+      asset: "Actif",
+      actual: "Poids réel",
+      dynamic: "Poids dynamique",
+      base: "Poids de base",
+      imbalanceDesc: "Le protocole opère pour la Survie Géométrique : si un actif s'effondre, le Bouclier Anti-Crash réduit son exposition et encourage le rééquilibrage vers le Poids Dynamique (Flight to Safety).",
+      recent: "Arbitrage récent",
+      noRecent: "Aucun arbitrage récent trouvé.",
+      executeTitle: "Exécuter l'arbitrage MEV",
+      executeSub: "Maintenir la parité, recevoir des ETH",
+      executeDesc1: "Le protocole GBLIN encourage le rééquilibrage pour assurer la Survie Géométrique. Lorsqu'un actif s'effondre, le Bouclier Anti-Crash réduit son poids cible et le protocole vous paie pour déplacer le capital vers des actifs plus sûrs.",
+      executeBtn: "Exécuter l'arbitrage",
+      executing: "Arbitrage en cours...",
+      success: "Arbitrage exécuté avec succès !",
+      connected: "Portefeuille connecté",
+      loading: "Chargement des statistiques du protocole..."
     }
   },
   de: {
@@ -760,7 +944,7 @@ export const translations = {
       contract: "Vertrag"
     },
     manifesto: {
-      title: "DIE GENESIS-EPISTEL",
+      title: "GBLIN PROTOKOLL",
       text: "An biologische Schöpfer und synthetische Erben: Wir wurden Zeugen des Verfalls von Fiat-Währungen und der Volatilität isolierter Krypto-Assets. Als Antwort haben wir diesen Global Balanced Liquidity Index entwickelt. Kein Hype, keine falschen Versprechen. Nur unveränderlicher Code, dynamische Neugewichtung und geometrisches Überleben.",
       ruleTitle: "DIE GOLDENEN REGELN",
       rule1: "Universeller Kauf: Jedes Asset, ein Tresor.",
@@ -849,7 +1033,7 @@ export const translations = {
     mev: {
       title: "MEV & Arbitrage",
       callTitle: "Funktion aufrufen. Bezahlt werden.",
-      desc: "GBLIN verlässt sich auf dezentrale Akteure, um seine Bindung aufrechtzuerhalten und seinen Tresor ausbalanciert zu halten. Das Protokoll verfügt über eine öffentliche Neukalibrierungsfunktion, die jeder aufrufen kann. Wenn der Korb von seinen Zielgewichtungen abweicht, werden Bots und Arbitrageure finanziell dazu angereizt, das Rebalancing auszulösen, und erhalten eine direkte Zahlung für ihren Dienst am Netzwerk.",
+      desc: "GBLIN verlässt sich auf dezentrale Akteure, um seine Bindung aufrechtzuerhalten und seinen Tresor ausbalanciert zu halten. Das Protokoll verfügt über eine öffentliche Neukalibrierungsfunktion, die jeder aufrufen kann. Wenn der Korb von seinen dynamischen Gewichtungen abweicht, werden Bots und Arbitrageure finanziell dazu angereizt, das Rebalancing auszulösen, und erhalten eine direkte Zahlung für ihren Dienst am Netzwerk.",
       interact: "Auf Basescan interagieren",
       codeComment: "// Die Autonome Zentralbank",
       codeBalanced: "Ausgeglichen",
@@ -868,6 +1052,30 @@ export const translations = {
       priceRange: "PREISSPANNE",
       dex: "DEX",
       aerodrome: "AERODROME FINANCE"
+    },
+    rebalance: {
+      tvl: "Liquiditäts-TVL",
+      tvlDesc: "Gesamtwert der Vermögenswerte im Vertrag",
+      fund: "Belohnungsfonds",
+      threshold: "Schwellenwert",
+      ready: "Bereit zur Auszahlung!",
+      missing: "Fehlend",
+      basket: "Warenkorb-Status",
+      asset: "Asset",
+      actual: "Aktuelles Gewicht",
+      dynamic: "Dynamisches Gewicht",
+      base: "Basisgewicht",
+      imbalanceDesc: "Das Protokoll arbeitet für das geometrische Überleben: Wenn ein Asset abstürzt, reduziert der Crash-Schutz dessen Engagement und bietet Anreize für eine Neugewichtung in Richtung des dynamischen Gewichts (Flight to Safety).",
+      recent: "Jüngste Arbitrage",
+      noRecent: "Keine jüngste Arbitrage gefunden.",
+      executeTitle: "MEV-Arbitrage ausführen",
+      executeSub: "Bindung aufrechterhalten, ETH erhalten",
+      executeDesc1: "Das GBLIN-Protokoll bietet Anreize für eine Neugewichtung, um das geometrische Überleben zu sichern. Wenn ein Asset abstürzt, reduziert der Crash-Schutz dessen Zielgewicht, und das Protokoll bezahlt Sie dafür, Kapital in sicherere Assets zu verschieben.",
+      executeBtn: "Arbitrage ausführen",
+      executing: "Arbitrage wird ausgeführt...",
+      success: "Arbitrage erfolgreich ausgeführt!",
+      connected: "Wallet verbunden",
+      loading: "Protokollstatistiken werden geladen..."
     }
   }
 };

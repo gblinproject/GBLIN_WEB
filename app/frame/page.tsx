@@ -8,7 +8,7 @@ export async function generateMetadata(
   { params, searchParams }: any,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const headersList = await headers();
+  const headersList = headers();
   const host = headersList.get('host') || '';
   const protocol = headersList.get('x-forwarded-proto') || 'https';
   const baseUrl = `${protocol}://${host}`;

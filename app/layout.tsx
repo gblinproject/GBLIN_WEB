@@ -1,38 +1,33 @@
-import { Inter, Cormorant_Garamond, JetBrains_Mono } from 'next/font/google'
-import './globals.css'
-import { LanguageProvider } from '../context/LanguageContext'
+import type { Metadata } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
+import "./globals.css";
+import Providers from "./providers";
 
 const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-sans',
-})
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
 
-const cormorant = Cormorant_Garamond({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-serif',
-})
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
 
-const mono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-mono',
-})
+export const metadata: Metadata = {
+  title: "GBLIN - The Golden Vault",
+  description: "The first autonomous central bank on Base. Algorithmic wealth preservation backed by real-world crypto assets.",
+};
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="en" className={`${inter.variable} ${cormorant.variable} ${mono.variable}`}>
-      <head>
-        <link rel="icon" href="https://raw.githubusercontent.com/rubbe89/gblin-assets/main/LOGO_GBLIN.png" />
-      </head>
-      <body className="bg-[#050505] text-white antialiased selection:bg-amber-500/30">
-        <LanguageProvider>
-          {children}
-        </LanguageProvider>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className="antialiased bg-neutral-950 text-neutral-100">
+        <Providers>{children}</Providers>
       </body>
     </html>
-  )
+  );
 }
